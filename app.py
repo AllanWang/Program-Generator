@@ -1,16 +1,22 @@
 from flask import Flask, request, render_template
+from flask_socketio import SocketIO, emit
 
 from generator.generator import generate
 from generator.result import Result
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    query = request.values.get('input')
-    result = generate(query)
-    return render_template('generator.html', query=query, host=request.host, result=repr(result))
+    return render_template('generator.html', host=request.host)
+
+
+@socketio.on('code_input')
+def code_input(message: str):
+    result: Result = generate(message)
+    emit('code_output', repr(result))
 
 
 @app.route('/hello')
@@ -19,4 +25,4 @@ def hello_world() -> str:
 
 
 if __name__ == '__main__':
-    app.run()
+    socketio.run(app)

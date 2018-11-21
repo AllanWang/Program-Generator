@@ -5,15 +5,38 @@
     <title>Code Generator</title>
 </head>
 <body>
-<form method=post>
-    <input id="generator_input"
-           type="text"
-           name="input"
-           title="Input"
-           value="{{query}}"
-           autocomplete="off">
-    <input type="submit" value="Submit">
-</form>
-<p>{{result}}</p>
+<input id="generator_input"
+       type="text"
+       name="input"
+       title="Input"
+       autocomplete="off">
+<br/>
+<p id="generator_result"></p>
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.slim.js"></script>
+<script>
+    const callback = () => {
+        const socket = io.connect("{{host}}");
+
+        const inputEl = document.getElementById('generator_input');
+        const resultEl = document.getElementById('generator_result');
+
+        inputEl.addEventListener('input', () => {
+            socket.emit('code_input', inputEl.value);
+        }, false);
+        socket.on('code_output', msg => {
+            resultEl.innerHTML = JSON.stringify(msg);
+        });
+
+    };
+
+    if (
+        document.readyState === "complete" ||
+        (document.readyState !== "loading" && !document.documentElement.doScroll)
+    ) {
+        callback();
+    } else {
+        document.addEventListener("DOMContentLoaded", callback);
+    }
+</script>
 </html>
