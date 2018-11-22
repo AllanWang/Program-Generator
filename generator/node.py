@@ -7,7 +7,7 @@ class Node(ABC):
         self.children = []
 
     @abstractmethod
-    def content_to_string(self) -> str:
+    def __repr__(self):
         pass
 
 
@@ -17,10 +17,18 @@ class Test(Node):
         super().__init__()
         self.number = number
 
-    def content_to_string(self) -> str:
+    def __repr__(self):
         f"Test [{self.number}]"
 
 
+class IntList(Node):
+
+    def __init__(self, range: (int, int), conditions: []):
+        super().__init__()
+        self.range = range
+        self.conditions = conditions
+
+
 class Blank(Node):
-    def content_to_string(self) -> str:
+    def __repr__(self) -> str:
         return "Blank"

@@ -1,11 +1,11 @@
-from .nodes import Node
+from dataclasses import dataclass
+
+from generator.condition import Condition
 
 
+@dataclass
 class Result:
-    def __init__(self, request: str, formatted_request: str, tree: Node):
-        self.input = request
-        self.formatted_input = formatted_request
-        self.tree = tree
-
-    def __repr__(self):
-        return "result"
+    tokens: [str]
+    formatted_tokens: []
+    fully_parsed: bool
+    conditions: [Condition]

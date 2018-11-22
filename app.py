@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template
 from flask_socketio import SocketIO, emit
 
-from generator.generator import generate
+from generator.generate import generate
 from generator.result import Result
 
 app = Flask(__name__)
