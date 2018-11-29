@@ -1,4 +1,6 @@
-S -> Creation | Condition | Creation Condition
+% start S
+
+S -> Creation
 Creation -> Create_v List_n | Create_v Independent List_n
 Create_v -> 'create' | 'build' | 'generate'
 List_n -> 'list'
@@ -7,3 +9,6 @@ INT -> '~INT~'
 OneArg -> '~BT~' | '~BTEQ~' | '~LT~' | '~LTEQ~'
 Independent -> Negation Independent | Independent Independent | 'even' | 'odd' | 'prime'
 Negation -> 'not'
+ConditionPart[POS=infix] = 'bigger' | 'smaller'
+Condition[TYPE=independent] = 'even' | 'odd' | Condition[TYPE=independent] Condition[TYPE=independent]
+Condition = Condition Condition

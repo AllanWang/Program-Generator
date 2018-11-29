@@ -55,9 +55,9 @@ def format(token: (str, str)) -> Optional[str]:
     """Given input token,
     either format the token or remove it"""
     if word.isdigit():
-        return '#INT#'
+        return '~INT~'
     if word == 'bigger':
-        return '#BT#'
+        return '~BT~'
     return word if word in terminal_words else None
 
 
@@ -97,5 +97,4 @@ if __name__ == '__main__':
     pp(result)
     tokens = [token[0] for token in result.formatted_tokens]
     print(tokens)
-    nltk.Tree
     parser.parse(tokens).pretty_print()
