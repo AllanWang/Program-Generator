@@ -3,26 +3,6 @@ from typing import Set
 from nltk.ccg import chart, lexicon, CCGLexicon
 from generator.formatter import format_sentence
 
-# lex: CCGLexicon = lexicon.fromstring('''
-# :- S, Create, List, Range, Int, CondInd, Cond, CondBranch, Conj
-# Create :: S
-# CondBranch :: S\\Create\\Conj
-# CondInd :: List/List
-# Cond :: Create\\Create
-# Range :: S
-#
-# create => Create/List/Range
-# create => (Create\\Range)/List
-# list => List
-# from => Range[from]/Int
-# ~INT~ => Int
-# to => (Range\\Range[from])/Int
-# even => CondInd
-# bigger => Cond/Int
-# if => CondBranch/Cond
-# and => Conj
-# ''')
-
 base_lex = '''
 :- Program, Create, Range, Int, CondPrefix, CondSuffix, CreatePart
 
@@ -61,9 +41,9 @@ def parse(sentence):
     print(formatted)
     lex = generate_lex(set(numbers))
     parser = chart.CCGChartParser(lex, chart.DefaultRuleSet)
-    result = parser.parse(formatted)
-    for parse in result:
-        chart.printCCGDerivation(parse)
+    results = parser.parse(formatted)
+    for result in results:
+        chart.printCCGDerivation(result)
         break
 
 
