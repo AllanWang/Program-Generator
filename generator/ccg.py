@@ -22,20 +22,25 @@ from generator.formatter import format_sentence
 # ''')
 
 lex: CCGLexicon = lexicon.fromstring('''
-:- Create, Range, Int, Cond
+:- Program, Create, Range, Int, CondPrefix, CondSuffix, CreatePart
 
-Cond :: Create\\Create {\\x.x}
+CondSuffix :: CreatePart\\CreatePart
+CondPrefix :: Create/CreatePart
 
-create => Create/Range {\\x.create(x)}
-list => Create\\Create {\\x.x}
+create => Program/Create {\\x.program(x)}
+list => CreatePart/Range {\\x.list(x)}
 from => Range[from]/Int {\\x.x} 
 ~INT~ => Int {~NUM~}
 to => (Range\\Range[from])/Int {\\y x.(MIN(x) & MAX(y))}
 to => Range/Int {\\x.x} 
-even => Cond {\\x.even(x)}
-odd => Cond {\\x.odd(x)}
-prime => Cond {\\x.prime(x)}
-bigger => Cond {\\x.bigger(x)}
+
+even => CondPrefix {\\x.even(x)}
+even => CondSuffix {\\x.even(x)}
+odd => CondPrefix {\\x.odd(x)}
+odd => CondSuffix {\\x.odd(x)}
+prime => CondPrefix {\\x.prime(x)}
+prime => CondSuffix {\\x.prime(x)}
+bigger => CondSuffix {\\x.bigger(x)}
 ''', True)
 
 parser = chart.CCGChartParser(lex, chart.DefaultRuleSet)
@@ -50,4 +55,4 @@ def parse(sentence):
         chart.printCCGDerivation(parse)
         break
 
-parse("create bigger, prime list from 10 to 100 that is bigger")
+parse("create even list from 10 to 100 that is odd and bigger")
