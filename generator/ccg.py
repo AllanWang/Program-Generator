@@ -24,7 +24,7 @@ from generator.formatter import format_sentence
 lex: CCGLexicon = lexicon.fromstring('''
 :- Create, Range, Int, Cond
 
-Cond :: Create\\Create {\\x.x}
+Cond :: Create/Create {\\x.x}
 
 create => Create/Range {\\x.create(x)}
 list => Create\\Create {\\x.x}
