@@ -3,8 +3,12 @@ import unittest
 from nltk.ccg import chart
 
 sentences = [
-    "create list from 0 to 0",
-    "create to 0"
+    # "from 0 to 0 create list",
+    # "create even list from 0 to 0",
+    # "create list from 0 to 0 if bigger 5",
+    # "create even list from 0 to 0 and if bigger 5"
+    "the dog bit john",
+    "the dog john bit"
 ]
 
 
