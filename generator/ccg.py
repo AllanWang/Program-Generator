@@ -1,16 +1,17 @@
-from typing import Set
+from typing import Set, Optional
 
+import nltk
 from nltk.ccg import chart, lexicon, CCGLexicon
-from formatter import format_sentence
+from generator.formatter import format_sentence
 
 base_lex = '''
 :- Program, Create, Range, Int, CondPrefix, CondSuffix, CreatePart
 
 CondSuffix :: CreatePart\\CreatePart
-CondPrefix :: Create/CreatePart
+CondPrefix :: Create/Create
 
 create => Program/Create {\\x.program(x)}
-list => CreatePart/Range {\\x.list(x)}
+list => Create/Range {\\x.list(x)}
 from => Range[from]/Int {\\x.x} 
 to => (Range\\Range[from])/Int {\\y x.R(x,y)}
 to => Range/Int {\\x.x} 
@@ -28,7 +29,6 @@ bigger => CondSuffix/Int {\\y x.bigger(y, x)}
 def generate_lex(integers: Set[int]) -> CCGLexicon:
     int_rules = '\n'.join([f"{x} => Int {{{x}}}" for x in integers])
     lex = base_lex + '\n' + int_rules
-    #print(lex)
     return lexicon.fromstring(lex, True)
 
 
@@ -36,18 +36,20 @@ base_lexicon = lexicon.fromstring(base_lex, True)
 words = set(base_lexicon._entries.keys())
 
 
-def parse(sentence):
+def parse(sentence) -> Optional[nltk.Tree]:
     formatted, numbers = format_sentence(sentence, words, keep_unknown=False)
-    #print(formatted)
     lex = generate_lex(set(numbers))
     parser = chart.CCGChartParser(lex, chart.DefaultRuleSet)
     results = parser.parse(formatted)
-    
-    for result in results:
-        return result
-        #chart.printCCGDerivation(result)
-        #return result
-        #break
+    return next(results, None)
 
 
-#parse("create even list from 10 to 100 that is bigger than 5")
+def test(sentence):
+    result = parse(sentence)
+    if result:
+        chart.printCCGDerivation(result)
+    else:
+        print("No result found")
+
+
+test("create list from 0 to 100 that is even")
