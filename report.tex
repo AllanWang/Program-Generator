@@ -64,9 +64,6 @@
 }
 \date{\today} % Leave empty to omit a date
 \renewcommand{\maketitlehookd}{%
-\begin{abstract}
-\noindent The Kaggle competition goal was to detect the largest among few digits placed at random locations in 64x64 images, with individual digits originating from the MNIST database \cite{MNIST}.
-\end{abstract}
 }
 
 %----------------------------------------------------------------------------------------
@@ -80,11 +77,21 @@
 %	ARTICLE CONTENTS
 %----------------------------------------------------------------------------------------
 
+\begin{abstract}
+When learning new programming languages, it is often easy to understand the syntax and learn
+about idiomatic executions through examples. Particularly with different paradigms, how we
+write code in one language may not be one to one with code in another language. Most
+languages provide examples through a list of common executions. If we can instead provide an
+example matching simple instructions in English, we can help refine the amount of code
+a new developer has to go through, and assist in creating an infinite set of examples tailored to
+each user. In this work, we have developed a prototype system which is able to process natural language instructions
+related to list creation with optional conditions, which is then translated into executable code with programming language provided by the user.  
+\end{abstract}
 \section{Introduction}
 
-\lettrine[nindent=0em,lines=2]{I} mage classification is a classic and long tackled problem in the Machine Learning Community. The goal in our competition was to classify the largest digit among all digits placed in a 64x64 image with background noise. We have tackled the problem at hand using several classification methods, including Support Vector Machines (SVM), k-Nearest Neighbors (kNN), Neural Networks (NN), Convolutional Neural Networks (CNN), and the Random Forest (RF) classifiers. Among the mentioned models, our best results have been through CNN model (Figure 1) with final accuracy of 95.03\%.
-
-
+\lettrine[nindent=0em,lines=2]{L}earning the syntax of a programming language can be frustrating and challenging. Often, programmers need to
+know various programming languages that can greatly vary in terms of control structures, syntax, etc. One way to efficiently learn new
+programming languages is to go through a set of common examples. For example, it can vary from using simple conditional statements such as  \textit{if and else} to iteration structure using \textit{for} or \textit{while} loop. Indeed, almost every programming language supports these types of operations, but it can be often frustrating to ingrain subtle syntactical differences between programming languages, even for programmers with proficient experience. However, a natural language instruction is something that we can understand without much effort. Hence, we have built a simple prototype system which is able to translate a simple type of natural language instructions into executable code with programming language specified by the user. In this work, we focus on creation of a list of numbers with some optional conditions. For example, the instruction \lq create an even list from 0 to 100\rq \enspace would generate all numbers between 0 and 100 that are even. Due to feasibility, we only allow a single instruction at a time, and we do not allow mutation. We explore methods of parsing natural language instruction, namely Context Free Grammar (CFG) and Combinatory Categorial Grammar (CCG). Then lastly, we evaluate our final model to systematically test whether or not it is able to parse natural language instruction with words that are not keywords.     
 %------------------------------------------------
 
 \section{Feature Design}
