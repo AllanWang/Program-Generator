@@ -5,24 +5,21 @@ from nltk.ccg import chart, lexicon, CCGLexicon
 from generator.formatter import format_sentence
 
 base_lex = '''
-:- Program, Create, Range, Int, CondPrefix, CondSuffix, CreatePart
-
-CondSuffix :: CreatePart\\CreatePart
-CondPrefix :: Create/Create
+:- Program, Create, Range, Int
 
 create => Program/Create {\\x.program(x)}
-list => Create/Range {\\x.list(x)}
+list => Create[post]/Range {\\x.list(x)}
 from => Range[from]/Int {\\x.x} 
 to => (Range\\Range[from])/Int {\\y x.R(x,y)}
 to => Range/Int {\\x.x} 
 
-even => CondPrefix {\\x.even(x)}
-even => CondSuffix {\\x.even(x)}
-odd => CondPrefix {\\x.odd(x)}
-odd => CondSuffix {\\x.odd(x)}
-prime => CondPrefix {\\x.prime(x)}
-prime => CondSuffix {\\x.prime(x)}
-bigger => CondSuffix/Int {\\y x.bigger(y, x)}
+even => Create[pre]/Create {\\x.even(x)}
+even => Create[post]\\Create[post] {\\x.even(x)}
+# odd => CondPrefix {\\x.odd(x)}
+# odd => CondSuffix {\\x.odd(x)}
+# prime => CondPrefix {\\x.prime(x)}
+# prime => CondSuffix {\\x.prime(x)}
+bigger => (Create[post]\\Create[post])/Int {\\y x.bigger(y, x)}
 '''
 
 
@@ -52,4 +49,4 @@ def test(sentence):
         print("No result found")
 
 
-test("create list from 0 to 100 that is even")
+test("create even list from 0 to 100 that is bigger than 5")
