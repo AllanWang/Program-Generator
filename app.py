@@ -1,9 +1,6 @@
 from flask import Flask, request, render_template
 from flask_socketio import SocketIO, emit
 
-from generator.generate import generate
-from generator.result import Result
-
 app = Flask(__name__)
 socketio = SocketIO(app)
 
@@ -15,8 +12,8 @@ def index():
 
 @socketio.on('code_input')
 def code_input(message: str):
-    result: Result = generate(message)
-    emit('code_output', repr(result))
+    # TODO add action here
+    emit('code_output', f"todo {str}")
 
 
 @app.route('/hello')

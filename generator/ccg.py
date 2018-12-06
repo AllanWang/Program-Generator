@@ -1,4 +1,4 @@
-from typing import Set, Optional
+from typing import Set, Optional, Any
 
 import nltk
 from nltk.ccg import chart, lexicon, CCGLexicon
@@ -36,7 +36,7 @@ def generate_lex(integers: Set[int]) -> CCGLexicon:
     return lexicon.fromstring(lex, True)
 
 
-words = set([w.split("=>")[0].strip() for w in base_lex.split("\n") if "=>" in w])
+words = set([w.partition("=>")[0].strip() for w in base_lex.split("\n") if "=>" in w])
 
 
 def parse(sentence: str) -> Optional[nltk.Tree]:
@@ -47,10 +47,33 @@ def parse(sentence: str) -> Optional[nltk.Tree]:
     return next(results, None)
 
 
+def test_parse(tree: nltk.Tree):
+    # chart.printCCGDerivation(tree)
+    parse_node(tree)
+
+
+def parse_node(tree: nltk.Tree) -> str:
+    token: nltk.ccg.lexicon.Token = tree.label()[0]
+
+    categ = str(token.categ()).partition('[')[0].lower()
+    semantics = token.semantics()
+    subtrees = list(tree.subtrees(lambda t: t is not tree and isinstance(t.label(), tuple)))
+    print(f"Parsing {categ} {semantics} {len(subtrees)}")
+    if categ == 'program':
+        for s in subtrees:
+            parse_node(s)
+        return parse_node(subtrees[1])
+    # if categ == '(program/create)':
+    #     print("Hel")
+    #     return parse_node(subtrees[1])
+    return f"Noop {categ}"
+
+
 def test(sentence):
     result = parse(sentence)
     if result:
-        chart.printCCGDerivation(result)
+        test_parse(result)
+        # chart.printCCGDerivation(result)
     else:
         print("No result found")
 

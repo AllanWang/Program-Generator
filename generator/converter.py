@@ -3,7 +3,7 @@
 sentence = "create even list from 10 to 100 that is bigger than 5"
 #parsed = 'program(even(bigger(5,list(R(10,100)))))'
 
-from ccg import parse
+from generator.ccg import parse
 from nltk.ccg import chart, lexicon, CCGLexicon
 from nltk.tree import Tree
 import re
