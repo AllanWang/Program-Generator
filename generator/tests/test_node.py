@@ -16,6 +16,7 @@ class TestNode(unittest.TestCase):
     def test_valid_nodes(self):
         for tree in valid_trees:
             with self.subTest(tree):
+                tree = "".join(tree.split()) # Remove whitespace
                 self.assertEqual(tree, Node.parse(tree).display(), 'Parse mismatch')
 
 
