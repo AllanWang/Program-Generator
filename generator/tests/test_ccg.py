@@ -1,9 +1,10 @@
 from generator.ccg import parse
 import unittest
-from nltk.ccg import chart
 
 valid_sentences = [
     "create list from 0 to 100",
+    "create a list from 0 to 100",
+    "create a list to 1 from 99",
     "create even list from 0 to 100",
     "create even list from 0 to 100 that is even",
     "create even list from 0 to 100 that is bigger than 5"
