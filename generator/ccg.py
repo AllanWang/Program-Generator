@@ -11,10 +11,9 @@ CondPrefix :: Create[pre]/Create[pre]
 CondSuffix :: Create[post]\\Create
 
 create => Program/Create {\\x.program(x)}
-list => Create[pre]/Range {\\x.list(x)}
+list => Create[pre]/Range[from]/Range[to] {\\y x.list(x, y)}
 from => Range[from]/Int {\\x.x} 
-to => (Range\\Range[from])/Int {\\y x.R(x,y)}
-to => Range/Int {\\x.x} 
+to => Range[to]/Int {\\x.x}
 
 even => CondPrefix {\\x.even(x)}
 even => CondSuffix {\\x.even(x)}
@@ -56,4 +55,4 @@ def test(sentence):
         print("No result found")
 
 
-test("create even list from 0 to 100 that is bigger than 5")
+test("create even list from 100 to 0")
