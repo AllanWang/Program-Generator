@@ -1,8 +1,4 @@
-from generator.generate import generate
-from generator.result import Result
-from pprint import pprint
 from beeprint import pp
-
 
 
 def main():
@@ -11,7 +7,7 @@ def main():
         if command == 'quit':
             print("Exited")
             return
-        result = generate(command)
+        result = 'todo'  # todo bind generator
         print("\n")
         pp(result)
         print("\n")

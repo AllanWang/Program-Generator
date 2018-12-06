@@ -1,5 +1,6 @@
-from generator.ccg import parse
 import unittest
+
+from generator.ccg import parse
 
 valid_sentences = [
     "create list from 0 to 100",
