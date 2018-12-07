@@ -1,14 +1,14 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 
 
 @dataclass
 class Node:
     value: str
-    children: List['Node']
+    children: List['Node'] = field(default_factory=list)
 
     def add_child(self, value) -> 'Node':
-        child = Node(value, [])
+        child = Node(value=value)
         self.children.append(child)
         return child
 
@@ -27,7 +27,7 @@ class Node:
         """
         if tree.count(down_char) != tree.count(up_char):
             return None
-        node: Node = Node(value='', children=[])
+        node: Node = Node(value='')
         parent_stack: [Node] = []
         value: [chr] = []
 
