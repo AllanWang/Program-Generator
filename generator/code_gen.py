@@ -69,9 +69,9 @@ def python_range_wrap(wrapper: str) -> CallableTemplate:
         a = int(body[0])
         b = int(body[1])
         if a > b:
-            return wrapper.format(f"reversed(range({b}, {a}))")
+            return wrapper.format(f"reversed(range({b}, {a}+1))")
         else:
-            return wrapper.format(f"range({a}, {b})")
+            return wrapper.format(f"range({a}, {b}+1)")
 
     return wrapper_template
 
@@ -85,7 +85,7 @@ code_gen_python_inline = CodeGenLanguage.from_templates('python_inline', [
 ])
 
 
-def python_functional_wrap(body: [str]):
+def python_functional_wrap(body: [str]) -> str:
     code = '\n\t'.join(b for b in body[0].split('\n') if b)
     return f"def code():\n\t{code}\n\treturn list(stream)"
 
@@ -96,4 +96,32 @@ code_gen_python_functional = CodeGenLanguage.from_templates('python_functional',
     CodeTemplate(key='odd', template='{0}\nstream = filter(lambda x: x % 2 == 1, stream)'),
     CodeTemplate(key='bigger', template='{1}\nstream = filter(lambda x: x > {0}, stream)'),
     CodeTemplate(key='program', template=python_functional_wrap),
+])
+
+
+def kotlin_range_wrap(wrapper: str) -> CallableTemplate:
+    def wrapper_template(body: [str]):
+        a = int(body[0])
+        b = int(body[1])
+        if a > b:
+            return wrapper.format(f"({a} downTo {b})")
+        else:
+            return wrapper.format(f"({a}..{b})")
+
+    return wrapper_template
+
+
+def kotlin_wrap(body: [str]) -> str:
+    code = '\n\t\t'.join(b for b in body[0].split('\n') if b)
+    if code.endswith('.asSequence()'):
+        code = code.rpartition('.asSequence()')[0]
+    return f"fun code() =\n\t{code}.toList()"
+
+
+code_gen_kotlin = CodeGenLanguage.from_templates('kotlin', [
+    CodeTemplate(key='list', template=kotlin_range_wrap('{0}.asSequence()')),
+    CodeTemplate(key='even', template='{0}\n.filter {{ it % 2 == 0 }}'),
+    CodeTemplate(key='odd', template='{0}\n.filter {{ it % 2 == 1 }}'),
+    CodeTemplate(key='bigger', template='{1}\n.filter {{ it > {0} }}'),
+    CodeTemplate(key='program', template=kotlin_wrap),
 ])
