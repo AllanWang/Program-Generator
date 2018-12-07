@@ -17,7 +17,7 @@ invalid_sentences = [
 ]
 
 
-class TestGenerator(unittest.TestCase):
+class TestCCG(unittest.TestCase):
 
     def test_valid_sentences(self):
         for sentence in valid_sentences:

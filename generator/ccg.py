@@ -1,8 +1,10 @@
-from typing import Set, Optional, Any
+from typing import Set, Optional
 
 import nltk
 from nltk.ccg import chart, lexicon, CCGLexicon
+
 from generator.formatter import format_sentence
+from generator.node import Node
 
 base_lex = '''
 :- Program, Create, Range, Int, CondPrefix, CondSuffix
@@ -47,35 +49,13 @@ def parse(sentence: str) -> Optional[nltk.Tree]:
     return next(results, None)
 
 
-def test_parse(tree: nltk.Tree):
-    # chart.printCCGDerivation(tree)
-    parse_node(tree)
-
-
-def parse_node(tree: nltk.Tree) -> str:
+def tree_to_node(tree: nltk.Tree) -> Node:
     token: nltk.ccg.lexicon.Token = tree.label()[0]
-
-    categ = str(token.categ()).partition('[')[0].lower()
-    semantics = token.semantics()
-    subtrees = list(tree.subtrees(lambda t: t is not tree and isinstance(t.label(), tuple)))
-    print(f"Parsing {categ} {semantics} {len(subtrees)}")
-    if categ == 'program':
-        for s in subtrees:
-            parse_node(s)
-        return parse_node(subtrees[1])
-    # if categ == '(program/create)':
-    #     print("Hel")
-    #     return parse_node(subtrees[1])
-    return f"Noop {categ}"
+    return Node.parse(str(token.semantics()))
 
 
-def test(sentence):
-    result = parse(sentence)
-    if result:
-        test_parse(result)
-        # chart.printCCGDerivation(result)
-    else:
-        print("No result found")
-
-
-test("create even list from 100 to 0")
+def parse_to_node(sentence: str) -> Optional[Node]:
+    tree = parse(sentence)
+    if tree is None:
+        return None
+    return tree_to_node(tree)
