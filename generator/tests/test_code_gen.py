@@ -5,17 +5,17 @@ from generator.code_gen import *
 
 sentences: [(str, [int])] = [
     ("create list from 0 to 100",
-     [x for x in range(0, 100)]),
+     [x for x in range(0, 101)]),
     ("create a list from 0 to 100",
-     [x for x in range(0, 100)]),
+     [x for x in range(0, 101)]),
     ("create a list to 1 from 99",
-     [x for x in reversed(range(1, 99))]),
+     [x for x in reversed(range(1, 100))]),
     ("create even list from 0 to 100",
-     [x for x in range(0, 100) if x % 2 == 0]),
+     [x for x in range(0, 101) if x % 2 == 0]),
     ("create even list from 0 to 100 that is even",
-     [x for x in range(0, 100) if x % 2 == 0]),
+     [x for x in range(0, 101) if x % 2 == 0]),
     ("create even list from 0 to 100 that is bigger than 5",
-     [x for x in range(0, 100) if x % 2 == 0 and x > 5])
+     [x for x in range(0, 101) if x % 2 == 0 and x > 5])
 ]
 
 
@@ -29,20 +29,27 @@ class TestCodeGen(unittest.TestCase):
             return output['result']
         return []
 
-    def _test_sentence(self, language: CodeGenLanguage):
+    def _test_sentence(self, language: CodeGenLanguage, verify_output: bool = True):
         for (sentence, expected) in sentences:
             with self.subTest(sentence):
                 node = parse_to_node(sentence)
+                code = language.generate_from_node(node)
                 if not node:
                     self.fail("Could not create node from sentence")
-                result = self._get_output(language.name, language.generate_from_node(node))
-                self.assertEqual(expected, result, "Output mismatch")
+                if verify_output:
+                    result = self._get_output(language.name, code)
+                    self.assertEqual(expected, result, "Output mismatch")
+                else:
+                    print(f"-----\n{sentence}\n{code}\n-----")
 
     def test_python_inline(self):
         self._test_sentence(code_gen_python_inline)
 
     def test_python_functional(self):
         self._test_sentence(code_gen_python_functional)
+
+    def test_kotlin(self):
+        self._test_sentence(code_gen_kotlin, False)
 
 
 if __name__ == '__main__':
