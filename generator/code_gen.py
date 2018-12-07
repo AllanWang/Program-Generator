@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Set, Dict, Union, Callable, List
+from typing import Set, Dict, Union, Callable, List, Optional
 
 from generator.node import Node
 
@@ -41,6 +41,12 @@ class CodeGenLanguage:
     class CodeGenHelper:
         imports: Set[str] = field(default_factory=set)
         lib_keys: Set[str] = field(default_factory=set)
+
+    def generate_from_text(self, text: str) -> Optional[str]:
+        node = Node.parse(text)
+        if not node:
+            return None
+        return self.generate_from_node(node)
 
     def generate_from_node(self, node: Node) -> str:
         container = self.CodeGenHelper()
@@ -92,8 +98,9 @@ code_gen_python_functional = CodeGenLanguage.from_templates('python_functional',
     CodeTemplate(key='program', template=python_functional_wrap),
 ])
 
-tree = Node.parse('program(bigger(5, even(list(1000, 200))))')
 
-code_gen = code_gen_python_functional.generate_from_node(tree)
-# code_gen = python_inline_code_gen.generate_from_node(tree)
-print(code_gen)
+def test(code_gen: CodeGenLanguage, sentence: str):
+    print(code_gen.generate_from_text(sentence))
+
+
+test(code_gen_python_functional, 'program(bigger(5, even(list(1000, 200))))')
