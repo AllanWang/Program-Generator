@@ -97,10 +97,3 @@ code_gen_python_functional = CodeGenLanguage.from_templates('python_functional',
     CodeTemplate(key='bigger', template='{1}\nstream = filter(lambda x: x > {0}, stream)'),
     CodeTemplate(key='program', template=python_functional_wrap),
 ])
-
-
-def test(code_gen: CodeGenLanguage, sentence: str):
-    print(code_gen.generate_from_text(sentence))
-
-
-test(code_gen_python_functional, 'program(bigger(5, even(list(1000, 200))))')
