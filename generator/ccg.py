@@ -3,7 +3,7 @@ from typing import Set, Optional
 import nltk
 from nltk.ccg import chart, lexicon, CCGLexicon
 
-from generator.formatter import format_sentence
+from generator.formatter import Formatter
 from generator.node import Node
 
 base_lex = '''
@@ -26,6 +26,21 @@ prime => CondSuffix {\\x.prime(x)}
 bigger => CondSuffix/Int {\\y x.bigger(y, x)}
 '''
 
+synset_name_pool = {
+    'even': 'even.a.01',
+    'odd': 'odd.a.01',
+    'prime': 'prime.n.01',
+    'create': 'produce.v.02',
+    'list': 'list.n.01',
+    'bigger': 'bigger.s.01',
+    'from': [],
+    'to': []
+}
+
+words = set([w.partition("=>")[0].strip() for w in base_lex.split("\n") if "=>" in w])
+
+formatter = Formatter(words, synset_name_pool)
+
 
 def generate_lex(integers: Set[int]) -> CCGLexicon:
     """
@@ -38,14 +53,16 @@ def generate_lex(integers: Set[int]) -> CCGLexicon:
     return lexicon.fromstring(lex, True)
 
 
-words = set([w.partition("=>")[0].strip() for w in base_lex.split("\n") if "=>" in w])
-
-
-def parse(sentence: str) -> Optional[nltk.Tree]:
-    formatted, numbers = format_sentence(sentence, words, keep_unknown=False)
+def parse(sentence: str, print_warnings: bool = True) -> Optional[nltk.Tree]:
+    formatted = formatter.format_sentence(sentence)
+    if isinstance(formatted, str):
+        if print_warnings:
+            print(formatted)
+        return None
+    formatted_sentence, numbers = formatted
     lex = generate_lex(set(numbers))
     parser = chart.CCGChartParser(lex, chart.DefaultRuleSet)
-    results = parser.parse(formatted)
+    results = parser.parse(formatted_sentence)
     return next(results, None)
 
 
@@ -59,3 +76,10 @@ def parse_to_node(sentence: str) -> Optional[Node]:
     if tree is None:
         return None
     return tree_to_node(tree)
+
+
+def test_formatted():
+    formatter = Formatter(synset_name_pool.keys(), synset_name_pool)
+    print(formatter._words)
+    print(formatter._synonyms)
+    print(formatter.format_sentence('even bigger'))
