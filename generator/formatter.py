@@ -25,8 +25,8 @@ tag_to_wordnet = {
 
 def lemmatize(word: str, tag: str) -> str:
     """
-    Given sentence as a list of words,
-    output a new list with the lemmas
+    Given word and tag, attempt to output lemma.
+    Outputs original word as a fallback.
     """
     wn_tag = tag_to_wordnet.get(tag)
     if wn_tag is None:
