@@ -17,7 +17,7 @@ list => Create[pre]/Range[from]/Range[to] {\\y x.list(x, y)}
 from => Range[from]/Int {\\x.x} 
 to => Range[to]/Int {\\x.x}
 
-even => CondPrefix {\\x.even(x)}
+even => CondPrefix {\\x.op(even, x)}
 even => CondSuffix {\\x.even(x)}
 odd => CondPrefix {\\x.odd(x)}
 odd => CondSuffix {\\x.odd(x)}
@@ -83,3 +83,13 @@ def test_formatted():
     print(formatter._words)
     print(formatter._synonyms)
     print(formatter.format_sentence('even bigger'))
+
+
+def test_ccg(*sentence: str):
+    for s in sentence:
+        tree = parse(s)
+        if tree:
+            chart.printCCGDerivation(tree)
+
+
+test_ccg("create even list from 0 to 100")
