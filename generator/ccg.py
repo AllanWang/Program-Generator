@@ -17,7 +17,7 @@ list => Create[pre]/Range[from]/Range[to] {\\y x.list(x, y)}
 from => Range[from]/Int {\\x.x} 
 to => Range[to]/Int {\\x.x}
 
-even => CondPrefix {\\x.op(even, x)}
+even => CondPrefix {\\x.even(x)}
 even => CondSuffix {\\x.even(x)}
 odd => CondPrefix {\\x.odd(x)}
 odd => CondSuffix {\\x.odd(x)}
