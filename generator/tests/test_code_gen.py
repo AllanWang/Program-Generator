@@ -43,10 +43,10 @@ class TestCodeGen(unittest.TestCase):
                     print(f"-----\n{sentence}\n{code}\n-----")
 
     def test_python_inline(self):
-        self._test_sentence(code_gen_python_inline)
+        self._test_sentence(code_gen_python_inline_templates)
 
     def test_python_functional(self):
-        self._test_sentence(code_gen_python_functional)
+        self._test_sentence(code_gen_python_functional_templates)
 
     def test_kotlin(self):
         self._test_sentence(code_gen_kotlin, False)

@@ -1,9 +1,11 @@
 from dataclasses import dataclass, field
-from typing import Set, Dict, Union, Callable, List, Optional
+from typing import Set, Dict, Union, Callable, List, Optional, Any
+from abc import ABC, abstractmethod
 
+from generator.ccg import parse_to_node
 from generator.node import Node
 
-CallableTemplate = Callable[[List[str]], str]
+CallableTemplate = Callable[[List], Any]
 
 
 @dataclass
@@ -55,7 +57,7 @@ class CodeGenLanguage:
         lib_string = '\n'.join(self.get_template(s).template for s in container.lib_keys)
         return '\n'.join(s for s in [import_string, lib_string, gen_code] if s)
 
-    def _generate_from_node(self, node: Node, container: CodeGenHelper) -> str:
+    def _generate_from_node(self, node: Node, container: CodeGenHelper):
         code_template = self.get_template(node.value)
         container.lib_keys.update(code_template.lib_keys)
         child_templates = [self._generate_from_node(c, container) for c in node.children]
@@ -64,39 +66,97 @@ class CodeGenLanguage:
         return code_template.template(child_templates)
 
 
-def python_range_wrap(wrapper: str) -> CallableTemplate:
-    def wrapper_template(body: [str]):
-        a = int(body[0])
-        b = int(body[1])
-        if a > b:
-            return wrapper.format(f"reversed(range({b}, {a}+1))")
-        else:
-            return wrapper.format(f"range({a}, {b}+1)")
-
-    return wrapper_template
+def python_range_template(body: [str]) -> str:
+    a = int(body[0])
+    b = int(body[1])
+    if a > b:
+        return f"reversed(range({b}, {a}+1))"
+    else:
+        return f"range({a}, {b}+1)"
 
 
-code_gen_python_inline = CodeGenLanguage.from_templates('python_inline', [
-    CodeTemplate(key='list', template=python_range_wrap('(x for x in {0})')),
-    CodeTemplate(key='even', template='(x for x in {0} if x % 2 == 0)'),
-    CodeTemplate(key='odd', template='(x for x in {0} if x % 2 == 1)'),
-    CodeTemplate(key='bigger', template='(x for x in {1} if x > {0})'),
-    CodeTemplate(key='program', template='def code():\n\treturn list{0}'),
-])
+def python_inline_negate(body: [str]) -> str:
+    pre, mid, post = body[0].rpartition('if')
+    if mid is '':
+        raise ValueError("Attempted to negate without an if condition")
+    if post.startswith(' not'):
+        return f"{pre}{mid}{post[4:]}"
+    else:
+        return f"{pre}{mid} not{post}"
 
 
-def python_functional_wrap(body: [str]) -> str:
-    code = '\n\t'.join(b for b in body[0].split('\n') if b)
-    return f"def code():\n\t{code}\n\treturn list(stream)"
+@dataclass
+class ConditionTemplate:
+    template: str
+    negate: bool = False
 
 
-code_gen_python_functional = CodeGenLanguage.from_templates('python_functional', [
-    CodeTemplate(key='list', template=python_range_wrap('stream = (x for x in {0})')),
-    CodeTemplate(key='even', template='{0}\nstream = filter(lambda x: x % 2 == 0, stream)'),
-    CodeTemplate(key='odd', template='{0}\nstream = filter(lambda x: x % 2 == 1, stream)'),
-    CodeTemplate(key='bigger', template='{1}\nstream = filter(lambda x: x > {0}, stream)'),
-    CodeTemplate(key='program', template=python_functional_wrap),
-])
+def condition_template(template: str, argc: int = 0) -> CallableTemplate:
+    def callable(data: []) -> []:
+        cond = ConditionTemplate(template.format(data[:argc]))
+        base = data[argc:]
+        base.append(cond)
+        return base
+
+    return callable
+
+
+def negation_template(data: []) -> []:
+    cond: ConditionTemplate = data[0][-1]
+    cond.negate = not cond.negate
+    return data[0]
+
+
+def template_to_string(negate_condition: Callable[[str], str]):
+    def converter(template: Union[str, ConditionTemplate]) -> str:
+        if isinstance(template, str):
+            return template
+        if isinstance(template, ConditionTemplate):
+            if template.negate:
+                return negate_condition(template.template)
+            return template.template
+
+    return converter
+
+
+python_template_to_string = template_to_string(lambda x: f"not {x}")
+
+
+def python_inline_program_template(data: []) -> str:
+    lines = [python_template_to_string(d) for d in data[0]]
+    code = f"(x for x in {lines[0]}"
+    for cond in lines[1:]:
+        code = f"(x for x in {code} if {cond})"
+    return f"def code():\n\treturn list({code})"
+
+
+def python_functional_program_template(data: []) -> str:
+    lines = [python_template_to_string(d) for d in data]
+    code = [f"stream = {lines[0]}"]
+    for cond in lines[1:]:
+        code.append(f"stream = filter(lambda x: {cond}, stream)")
+    body = '\n\t'.join(code)
+    return f"def code():\n\t{body}\n\treturn list(stream)"
+
+
+code_gen_base_templates = [
+    CodeTemplate(key='neg', template=negation_template)
+]
+
+code_gen_python_base_templates = code_gen_base_templates + [
+    CodeTemplate(key='list', template=python_range_template),
+    CodeTemplate(key='even', template=condition_template('x % 2 == 0')),
+    CodeTemplate(key='odd', template=condition_template('x % 2 == 1')),
+    CodeTemplate(key='bigger', template=condition_template('x > {0}', 1)),
+]
+
+code_gen_python_inline_templates = code_gen_python_base_templates + [
+    CodeTemplate(key='program', template=python_inline_program_template)
+]
+
+code_gen_python_functional_templates = code_gen_python_base_templates + [
+    CodeTemplate(key='program', template=python_functional_program_template)
+]
 
 
 def kotlin_range_wrap(wrapper: str) -> CallableTemplate:
@@ -125,3 +185,13 @@ code_gen_kotlin = CodeGenLanguage.from_templates('kotlin', [
     CodeTemplate(key='bigger', template='{1}\n.filter {{ it > {0} }}'),
     CodeTemplate(key='program', template=kotlin_wrap),
 ])
+
+
+def test(templates: [CodeTemplate], sentence: str):
+    generator = CodeGenLanguage.from_templates('test', templates)
+    node = parse_to_node(sentence)
+    code = generator.generate_from_node(node)
+    print(code)
+
+
+test(code_gen_python_inline_templates, "create not even list from 0 to 100")
