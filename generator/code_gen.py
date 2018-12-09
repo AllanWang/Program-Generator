@@ -180,3 +180,25 @@ def kotlin_program_template(data: []) -> str:
         code.append(f"\t.filter {{ {cond} }}")
     body = '\n\t'.join(code)
     return f"fun code() =\n\t{body}\n\t\t.toList()"
+
+
+# -------------------------------------------------------
+# Elm
+# -------------------------------------------------------
+
+get_elm_templates = get_templates(lambda x: f"not <| {x}")
+
+
+def elm_range_template(body: [str]) -> str:
+    a = int(body[0])
+    b = int(body[1])
+    return f"List.range {a} {b}"
+
+
+def elm_program_template(data: []) -> str:
+    lines = get_elm_templates(data)
+    code = [lines[0]]
+    for cond in lines[1:]:
+        code.append(f"\t|> List.filter (\\x -> {cond})")
+    body = '\n\t'.join(code)
+    return f"code : List Int\ncode = {body}"

@@ -27,6 +27,14 @@ code_gen_kotlin_templates = _code_gen_base_templates + [
     CodeTemplate(key='program', template=kotlin_program_template),
 ]
 
+code_gen_elm_templates = _code_gen_base_templates + [
+    CodeTemplate(key='list', template=elm_range_template),
+    CodeTemplate(key='even', template=condition_template('modBy x 2 == 0')),
+    CodeTemplate(key='odd', template=condition_template('modBy x 2 == 1')),
+    CodeTemplate(key='bigger', template=condition_template('x > {0}', 1)),
+    CodeTemplate(key='program', template=elm_program_template),
+]
+
 
 def test(templates: [CodeTemplate], sentence: str):
     generator = CodeGenLanguage.from_templates('test', templates)
