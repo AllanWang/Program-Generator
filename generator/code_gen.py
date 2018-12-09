@@ -101,7 +101,9 @@ def condition_template(template: str, argc: int = 0) -> CallableTemplate:
 
 
 def negation_template(data: []) -> []:
-    cond: ConditionTemplate = data[0][-1]
+    cond = data[0][-1]
+    if not isinstance(cond, ConditionTemplate):
+        raise ValueError("Attempted to negate an element that wasn't a condition template")
     cond.negate = not cond.negate
     return data[0]
 
@@ -178,4 +180,3 @@ def kotlin_program_template(data: []) -> str:
         code.append(f"\t.filter {{ {cond} }}")
     body = '\n\t'.join(code)
     return f"fun code() =\n\t{body}\n\t\t.toList()"
-
