@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from typing import Set, Dict, Union, Callable, List, Optional, Any
-from abc import ABC, abstractmethod
 
 from generator.ccg import parse_to_node
 from generator.node import Node
@@ -92,9 +91,10 @@ class ConditionTemplate:
 
 
 def condition_template(template: str, argc: int = 0) -> CallableTemplate:
-    def callable(data: []) -> []:
-        cond = ConditionTemplate(template.format(data[:argc]))
-        base = data[argc:]
+    def callable(data: []) -> [Any]:
+        cond = ConditionTemplate(template.format(*data[:argc]))
+        print(data, argc)
+        base = _data_to_list(data[argc])
         base.append(cond)
         return base
 
@@ -107,7 +107,15 @@ def negation_template(data: []) -> []:
     return data[0]
 
 
-def template_to_string(negate_condition: Callable[[str], str]):
+def _data_to_list(data) -> [Any]:
+    if isinstance(data, list):
+        return data
+    if isinstance(data, str):
+        return [data]
+    raise ValueError("Expected string or list")
+
+
+def _get_templates(negate_condition: Callable[[str], str]) -> CallableTemplate:
     def converter(template: Union[str, ConditionTemplate]) -> str:
         if isinstance(template, str):
             return template
@@ -116,22 +124,26 @@ def template_to_string(negate_condition: Callable[[str], str]):
                 return negate_condition(template.template)
             return template.template
 
-    return converter
+    def callable(data) -> [str]:
+        return [converter(d) for d in _data_to_list(data[0])]
+
+    return callable
 
 
-python_template_to_string = template_to_string(lambda x: f"not {x}")
+_get_python_templates = _get_templates(lambda x: f"not {x}")
 
 
 def python_inline_program_template(data: []) -> str:
-    lines = [python_template_to_string(d) for d in data[0]]
-    code = f"(x for x in {lines[0]}"
+    print(data)
+    lines = _get_python_templates(data)
+    code = f"(x for x in {lines[0]})"
     for cond in lines[1:]:
         code = f"(x for x in {code} if {cond})"
     return f"def code():\n\treturn list({code})"
 
 
 def python_functional_program_template(data: []) -> str:
-    lines = [python_template_to_string(d) for d in data]
+    lines = _get_python_templates(data)
     code = [f"stream = {lines[0]}"]
     for cond in lines[1:]:
         code.append(f"stream = filter(lambda x: {cond}, stream)")
@@ -194,4 +206,4 @@ def test(templates: [CodeTemplate], sentence: str):
     print(code)
 
 
-test(code_gen_python_inline_templates, "create not even list from 0 to 100")
+test(code_gen_python_inline_templates, "create even list from 0 to 100 bigger 5")
