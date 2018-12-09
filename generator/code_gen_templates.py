@@ -1,3 +1,4 @@
+from generator.ccg import parse_to_node
 from generator.code_gen import *
 
 _code_gen_base_templates = [
@@ -17,6 +18,16 @@ code_gen_python_inline_templates = _code_gen_python_base_templates + [
 
 code_gen_python_functional_templates = _code_gen_python_base_templates + [
     CodeTemplate(key='program', template=python_functional_program_template)
+]
+
+code_gen_java_templates = _code_gen_base_templates + [
+    CodeTemplate(key='list', template=java_range_template,
+                 imports={'import java.util.stream.Collectors;', 'import java.util.stream.IntStream;',
+                          'import java.util.List;'}),
+    CodeTemplate(key='even', template=condition_template('x % 2 == 0')),
+    CodeTemplate(key='odd', template=condition_template('x % 2 == 1')),
+    CodeTemplate(key='bigger', template=condition_template('x > {0}', 1)),
+    CodeTemplate(key='program', template=java_program_template),
 ]
 
 code_gen_kotlin_templates = _code_gen_base_templates + [
