@@ -56,6 +56,9 @@ class TestCodeGen(unittest.TestCase):
     def test_kotlin(self):
         self._test_sentence(CodeGenLanguage.from_templates('kotlin', code_gen_kotlin_templates), False)
 
+    def test_elm(self):
+        self._test_sentence(CodeGenLanguage.from_templates('elm', code_gen_elm_templates), False)
+
 
 if __name__ == '__main__':
     unittest.main()
