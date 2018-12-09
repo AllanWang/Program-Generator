@@ -7,7 +7,7 @@ from generator.formatter import Formatter
 from generator.node import Node
 
 base_lex = '''
-:- Program, Create, Range, Int, CondPrefix, CondSuffix
+:- Program, Create, Range, Int
 
 CondPrefix :: Create[pre]/Create[pre]
 CondSuffix :: Create[post]\\Create
