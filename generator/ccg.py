@@ -23,15 +23,15 @@ even => CondPrefix {\\x.even(x)}
 even => CondSuffix {\\x.even(x)}
 odd => CondPrefix {\\x.odd(x)}
 odd => CondSuffix {\\x.odd(x)}
-prime => CondPrefix {\\x.prime(x)}
-prime => CondSuffix {\\x.prime(x)}
+# prime => CondPrefix {\\x.prime(x)}
+# prime => CondSuffix {\\x.prime(x)}
 bigger => CondSuffix/Int {\\y x.bigger(y, x)}
 '''
 
 synset_name_pool = {
     'even': 'even.a.01',
     'odd': 'odd.a.01',
-    'prime': 'prime.n.01',
+    # 'prime': 'prime.n.01',
     'create': 'produce.v.02',
     'list': 'list.n.01',
     'bigger': 'bigger.s.01',
