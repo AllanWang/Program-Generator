@@ -1,6 +1,5 @@
 import unittest
 
-from generator.ccg import parse_to_node
 from generator.code_gen_templates import *
 
 sentences: [(str, [int])] = [
@@ -52,6 +51,9 @@ class TestCodeGen(unittest.TestCase):
 
     def test_python_functional(self):
         self._test_sentence(CodeGenLanguage.from_templates('python_functional', code_gen_python_functional_templates))
+
+    def test_java(self):
+        self._test_sentence(CodeGenLanguage.from_templates('java', code_gen_java_templates), False)
 
     def test_kotlin(self):
         self._test_sentence(CodeGenLanguage.from_templates('kotlin', code_gen_kotlin_templates), False)

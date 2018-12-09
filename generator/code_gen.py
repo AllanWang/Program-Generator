@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Set, Dict, Union, Callable, List, Optional, Any
 
-from generator.ccg import parse_to_node
 from generator.node import Node
 
 CallableTemplate = Callable[[List], Any]
@@ -11,7 +10,7 @@ CallableTemplate = Callable[[List], Any]
 class CodeTemplate:
     key: str
     template: Union[str, CallableTemplate]
-    import_keys: Set[str] = field(default_factory=set)
+    imports: Set[str] = field(default_factory=set)
     lib_keys: Set[str] = field(default_factory=set)
 
 
@@ -52,36 +51,18 @@ class CodeGenLanguage:
     def generate_from_node(self, node: Node) -> str:
         container = self.CodeGenHelper()
         gen_code = self._generate_from_node(node, container)
-        import_string = '\n'.join(self.get_template(s).template for s in container.imports)
+        import_string = '\n'.join(sorted(container.imports))
         lib_string = '\n'.join(self.get_template(s).template for s in container.lib_keys)
-        return '\n'.join(s for s in [import_string, lib_string, gen_code] if s)
+        return '\n\n'.join(s for s in [import_string, lib_string, gen_code] if s)
 
     def _generate_from_node(self, node: Node, container: CodeGenHelper):
         code_template = self.get_template(node.value)
+        container.imports.update(code_template.imports)
         container.lib_keys.update(code_template.lib_keys)
         child_templates = [self._generate_from_node(c, container) for c in node.children]
         if isinstance(code_template.template, str):
             return code_template.template.format(*child_templates)
         return code_template.template(child_templates)
-
-
-def python_range_template(body: [str]) -> str:
-    a = int(body[0])
-    b = int(body[1])
-    if a > b:
-        return f"reversed(range({b}, {a}+1))"
-    else:
-        return f"range({a}, {b}+1)"
-
-
-def python_inline_negate(body: [str]) -> str:
-    pre, mid, post = body[0].rpartition('if')
-    if mid is '':
-        raise ValueError("Attempted to negate without an if condition")
-    if post.startswith(' not'):
-        return f"{pre}{mid}{post[4:]}"
-    else:
-        return f"{pre}{mid} not{post}"
 
 
 @dataclass
@@ -138,6 +119,15 @@ def get_templates(negate_condition: Callable[[str], str]) -> CallableTemplate:
 get_python_templates = get_templates(lambda x: f"not {x}")
 
 
+def python_range_template(body: [str]) -> str:
+    a = int(body[0])
+    b = int(body[1])
+    if a < b:
+        return f"range({a}, {b}+1)"
+    else:
+        return f"reversed(range({b}, {a}+1))"
+
+
 def python_inline_program_template(data: []) -> str:
     lines = get_python_templates(data)
     code = f"(x for x in {lines[0]})"
@@ -156,6 +146,33 @@ def python_functional_program_template(data: []) -> str:
 
 
 # -------------------------------------------------------
+# Java
+# -------------------------------------------------------
+
+
+get_java_templates = get_templates(lambda x: f"!({x})")
+
+
+def java_range_template(body: [str]) -> str:
+    a = int(body[0])
+    b = int(body[1])
+    if a < b:
+        return f"IntStream.rangeClosed({a}, {b})"
+    else:
+        return f"IntStream.rangeClosed({b}, {a}).map(i -> {a} - i)"
+
+
+def java_program_template(data: []) -> str:
+    lines = get_java_templates(data)
+    code = [lines[0]]
+    for cond in lines[1:]:
+        code.append(f"\t.filter(x -> {cond})")
+    body = '\n\t\t'.join(code)
+    method = f"\tpublic static List<Integer> code() {{\n\t\treturn {body}\n\t\t\t.boxed().collect(Collectors.toList());\n\t}}"
+    return f"class Code {{\n\n{method}\n\n}}"
+
+
+# -------------------------------------------------------
 # Kotlin
 # -------------------------------------------------------
 
@@ -165,10 +182,10 @@ get_kotlin_templates = get_templates(lambda x: f"!({x})")
 def kotlin_range_template(body: [str]) -> str:
     a = int(body[0])
     b = int(body[1])
-    if a > b:
-        return f"({a} downTo {b})"
-    else:
+    if a < b:
         return f"({a}..{b})"
+    else:
+        return f"({a} downTo {b})"
 
 
 def kotlin_program_template(data: []) -> str:
@@ -192,7 +209,10 @@ get_elm_templates = get_templates(lambda x: f"not <| {x}")
 def elm_range_template(body: [str]) -> str:
     a = int(body[0])
     b = int(body[1])
-    return f"List.range {a} {b}"
+    if a < b:
+        return f"List.range {a} {b}"
+    else:
+        return f"List.reverse (List.range {b} {a})"
 
 
 def elm_program_template(data: []) -> str:
