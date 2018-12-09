@@ -1,7 +1,7 @@
 import unittest
 
 from generator.ccg import parse_to_node
-from generator.code_gen import *
+from generator.code_gen_templates import *
 
 sentences: [(str, [int])] = [
     ("create list from 0 to 100",
@@ -54,7 +54,7 @@ class TestCodeGen(unittest.TestCase):
         self._test_sentence(CodeGenLanguage.from_templates('python_functional', code_gen_python_functional_templates))
 
     def test_kotlin(self):
-        self._test_sentence(code_gen_kotlin, False)
+        self._test_sentence(CodeGenLanguage.from_templates('kotlin', code_gen_kotlin_templates), False)
 
 
 if __name__ == '__main__':
