@@ -7,7 +7,7 @@ from generator.formatter import Formatter
 from generator.node import Node
 
 base_lex = '''
-:- Program, Create, Range, Int, CondPrefix, CondSuffix
+:- Program, Create, Range, Int
 
 CondPrefix :: Create[pre]/Create[pre]
 CondSuffix :: Create[post]\\Create
@@ -17,6 +17,8 @@ list => Create[pre]/Range[from]/Range[to] {\\y x.list(x, y)}
 from => Range[from]/Int {\\x.x} 
 to => Range[to]/Int {\\x.x}
 
+not => CondPrefix {\\x.neg(x)}
+not => CondSuffix {\\x.neg(x)}
 even => CondPrefix {\\x.even(x)}
 even => CondSuffix {\\x.even(x)}
 odd => CondPrefix {\\x.odd(x)}
@@ -92,4 +94,4 @@ def test_ccg(*sentence: str):
             chart.printCCGDerivation(tree)
 
 
-test_ccg("create even list from 0 to 100")
+# test_ccg("create not even list from 0 to 100 that is bigger than 5")
