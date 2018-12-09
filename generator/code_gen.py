@@ -93,8 +93,7 @@ class ConditionTemplate:
 def condition_template(template: str, argc: int = 0) -> CallableTemplate:
     def callable(data: []) -> [Any]:
         cond = ConditionTemplate(template.format(*data[:argc]))
-        print(data, argc)
-        base = _data_to_list(data[argc])
+        base = data_to_list(data[argc])
         base.append(cond)
         return base
 
@@ -107,7 +106,7 @@ def negation_template(data: []) -> []:
     return data[0]
 
 
-def _data_to_list(data) -> [Any]:
+def data_to_list(data) -> [Any]:
     if isinstance(data, list):
         return data
     if isinstance(data, str):
@@ -115,7 +114,7 @@ def _data_to_list(data) -> [Any]:
     raise ValueError("Expected string or list")
 
 
-def _get_templates(negate_condition: Callable[[str], str]) -> CallableTemplate:
+def get_templates(negate_condition: Callable[[str], str]) -> CallableTemplate:
     def converter(template: Union[str, ConditionTemplate]) -> str:
         if isinstance(template, str):
             return template
@@ -125,17 +124,20 @@ def _get_templates(negate_condition: Callable[[str], str]) -> CallableTemplate:
             return template.template
 
     def callable(data) -> [str]:
-        return [converter(d) for d in _data_to_list(data[0])]
+        return [converter(d) for d in data_to_list(data[0])]
 
     return callable
 
 
-_get_python_templates = _get_templates(lambda x: f"not {x}")
+# -------------------------------------------------------
+# Python
+# -------------------------------------------------------
+
+get_python_templates = get_templates(lambda x: f"not {x}")
 
 
 def python_inline_program_template(data: []) -> str:
-    print(data)
-    lines = _get_python_templates(data)
+    lines = get_python_templates(data)
     code = f"(x for x in {lines[0]})"
     for cond in lines[1:]:
         code = f"(x for x in {code} if {cond})"
@@ -143,7 +145,7 @@ def python_inline_program_template(data: []) -> str:
 
 
 def python_functional_program_template(data: []) -> str:
-    lines = _get_python_templates(data)
+    lines = get_python_templates(data)
     code = [f"stream = {lines[0]}"]
     for cond in lines[1:]:
         code.append(f"stream = filter(lambda x: {cond}, stream)")
@@ -151,59 +153,29 @@ def python_functional_program_template(data: []) -> str:
     return f"def code():\n\t{body}\n\treturn list(stream)"
 
 
-code_gen_base_templates = [
-    CodeTemplate(key='neg', template=negation_template)
-]
+# -------------------------------------------------------
+# Kotlin
+# -------------------------------------------------------
 
-code_gen_python_base_templates = code_gen_base_templates + [
-    CodeTemplate(key='list', template=python_range_template),
-    CodeTemplate(key='even', template=condition_template('x % 2 == 0')),
-    CodeTemplate(key='odd', template=condition_template('x % 2 == 1')),
-    CodeTemplate(key='bigger', template=condition_template('x > {0}', 1)),
-]
-
-code_gen_python_inline_templates = code_gen_python_base_templates + [
-    CodeTemplate(key='program', template=python_inline_program_template)
-]
-
-code_gen_python_functional_templates = code_gen_python_base_templates + [
-    CodeTemplate(key='program', template=python_functional_program_template)
-]
+get_kotlin_templates = get_templates(lambda x: f"!({x})")
 
 
-def kotlin_range_wrap(wrapper: str) -> CallableTemplate:
-    def wrapper_template(body: [str]):
-        a = int(body[0])
-        b = int(body[1])
-        if a > b:
-            return wrapper.format(f"({a} downTo {b})")
-        else:
-            return wrapper.format(f"({a}..{b})")
-
-    return wrapper_template
+def kotlin_range_template(body: [str]) -> str:
+    a = int(body[0])
+    b = int(body[1])
+    if a > b:
+        return f"({a} downTo {b})"
+    else:
+        return f"({a}..{b})"
 
 
-def kotlin_wrap(body: [str]) -> str:
-    code = '\n\t\t'.join(b for b in body[0].split('\n') if b)
-    if code.endswith('.asSequence()'):
-        code = code.rpartition('.asSequence()')[0]
-    return f"fun code() =\n\t{code}.toList()"
+def kotlin_program_template(data: []) -> str:
+    lines = get_kotlin_templates(data)
+    if len(lines) == 1:
+        return f"{lines[0]}.toList()"
+    code = [f"{lines[0]}.asSequence()"]
+    for cond in lines[1:]:
+        code.append(f"\t.filter {{ {cond} }}")
+    body = '\n\t'.join(code)
+    return f"fun code() =\n\t{body}\n\t\t.toList()"
 
-
-code_gen_kotlin = CodeGenLanguage.from_templates('kotlin', [
-    CodeTemplate(key='list', template=kotlin_range_wrap('{0}.asSequence()')),
-    CodeTemplate(key='even', template='{0}\n.filter {{ it % 2 == 0 }}'),
-    CodeTemplate(key='odd', template='{0}\n.filter {{ it % 2 == 1 }}'),
-    CodeTemplate(key='bigger', template='{1}\n.filter {{ it > {0} }}'),
-    CodeTemplate(key='program', template=kotlin_wrap),
-])
-
-
-def test(templates: [CodeTemplate], sentence: str):
-    generator = CodeGenLanguage.from_templates('test', templates)
-    node = parse_to_node(sentence)
-    code = generator.generate_from_node(node)
-    print(code)
-
-
-test(code_gen_python_inline_templates, "create even list from 0 to 100 bigger 5")
