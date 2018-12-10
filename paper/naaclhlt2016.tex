@@ -80,6 +80,25 @@ On top of being able to create a program, we wish to introduce a structure that 
 
 \section{Methodology}
 
+\begin{figure*}[t]
+  \small
+  \begin{verbatim}
+            list                  from         0         to          100
+((L/RF)/RT) {\y x.list(x,y)}  (RF/I) {\x.x}  I {0}  (RT/I) {\x.x}  I {100}
+                              ---------------------->
+                                      RF {0}
+                              ----------------------<T
+                              (L\(L/RF)) {\F.F(0)}
+----------------------------------------------------<B
+              (L/RT) {\y.list(0,y)}
+                                                    ------------------------>
+                                                            RT {100}
+---------------------------------------------------------------------------->
+                              L {list(0,100)}
+  \end{verbatim}
+  \caption{\label{font-figure} Shortened example of CCG output.}
+\end{figure*}
+
 \subsection{CCG Parsing}
 
 In creating our grammar, we defined a set of rules for each type we may encounter. 
@@ -101,10 +120,7 @@ One way we considered was post processing, where we would replace each number wi
 This poses a problem, as our assumption of word order may not always be correct. As an example, both `create a list from 0 to 100' and `create a list to 100 from 0' are represented by the same tree, and yet the numbers are not in the same order.
 We worked around this by extracting all the numbers in the word token, adding rules that map them to the same integer primitive, and then creating a new ccg parser for each sentence.
 
-The final result allows us to create CCGs like so:
-
-TODO ADD IMAGE
-
+The final result allows us to create CCGs like in figure 1.
 \subsection{Language Formatting}
 
 As we wish to parse our input using a CCG, we must first ensure that our corpus is contained in our lexicon.
