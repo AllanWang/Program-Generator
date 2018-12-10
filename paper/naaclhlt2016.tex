@@ -7,7 +7,7 @@
 \usepackage{times}
 \usepackage{latexsym}
 
-\naaclfinalcopy % Uncomment this line for the final submission
+% \naaclfinalcopy % Uncomment this line for the final submission
 \def\naaclpaperid{***} %  Enter the naacl Paper ID here
 
 % To expand the titlebox for more authors, uncomment
@@ -17,20 +17,7 @@
 \newcommand\BibTeX{B{\sc ib}\TeX}
 
 
-\title{Instructions for NAACL HLT 2016 Proceedings\Thanks{This
-    document has been adapted from the instructions for earlier ACL
-    and NAACL proceedings, including those for 
-    NAACL HLT15 by Matt Post and Adam Lopez,
-    NAACL HLT12 by Nizar Habash and William Schuler,
-    NAACL HLT10 by Claudia Leacock and Richard Wicentowski,
-    NAACL HLT09 by Joakim Nivre and Noah Smith, 
-    for ACL05 by Hwee Tou Ng and Kemal Oflazer,
-    for ACL02 by Eugene Charniak and Dekang Lin, and earlier ACL and
-    EACL formats.  Those versions were written by several people,
-    including John Chen, Henry S. Thompson and Donald Walker.
-    Additional elements were taken from the formatting instructions of
-    the {\em International Joint Conference on Artificial Intelligence}
-    and the {\em Conference on Computer Vision and Pattern Recognition}.}}
+\title{Program Generation from Natural Languages}
 
 % Author information can be set in various styles:
 % For several authors from the same institution:
@@ -74,232 +61,25 @@
 \end{abstract}
 
 \section{Introduction}
+Learning the syntax of a programming language can be frustrating and challenging. 
+For a new developer, programming languages contain lots of domain-specific rules, varying in control structures, syntax, etc.
+For experienced developers, programming languages may introduce completely new paradigms, and may not be easily translated from known languages through one to one mappings of keywords.
+One way to help overcome this technical hurdle is to read official documentation, or a large set of common examples.
+However, this is often a big time investment for a user who just wants to explore the basics of a language.
+Moreover, the examples may not completely reflect the desired use case, and can often be irrelevant to the problem at hand.
 
-The following instructions are directed to authors of papers submitted to and accepted
-for publication in the NAACL HLT 2016 proceedings.  All authors are required
-to adhere to these specifications. Authors are required to provide 
-a Portable Document Format (PDF) version of
-their papers.  The proceedings will be printed on US-Letter paper.
-Authors from countries where access to word-processing systems is
-limited should contact the publication chairs as soon as possible.
- Grayscale readability of all figures and
-graphics will be encouraged for all accepted papers
-(Section \ref{ssec:accessibility}).  
+Our goal is to explore the feasibility of mapping natural languages to programs by extracting features and creating runnable code.
+This would greatly reduce the learning curve when dealing with simple operations, and will help introduce language features without the developer knowing about them beforehand.
+More specifically, we wish to focus on generating number lists in multiple programming languages, allowing for varying constraints available across all supported languages.
+We will use Combinatory Categorial Grammar (CCG) to create a tree representing the logic, then introduce language specific transformers to map subtrees to working code.
+Lastly, we will pass through the generated body and output a working program.
+On top of being able to create a program, we wish to introduce a structure that can be extended to support both new languages and new operations within the semantics tree.
 
-Submitted and camera-ready formatting is similar,
-  however, the submitted paper should have:
-\begin{enumerate} 
-\item Author-identifying information removed
-\item A `ruler' on the left and right margins
-\item Page numbers 
-\item A confidentiality header.  
-\end{enumerate}
-In contrast, the camera-ready {\bf should  not have} a ruler, page numbers, nor a confidentiality header.  By uncommenting {\small\verb|\naaclfinalcopy|} at the top of this 
- document, it will compile to produce an example of the camera-ready formatting; by leaving it commented out, the document will be anonymized for initial submission.  Authors should place this command after the {\small\verb|\usepackage|} declarations when preparing their camera-ready manuscript with the NAACL HLT 2016 style.
-
+% TODO should we give an example?
+% Main goal of intro is to have the hypothesis, which is above   
 
 \section{General Instructions}
-
-Manuscripts must be in two-column format.  Exceptions to the
-two-column format include the title, as well as the 
-authors' names and complete
-addresses (only in the final version, not in the version submitted for review), 
-which must be centered at the top of the first page (see
-the guidelines in Subsection~\ref{ssec:first}), and any full-width
-figures or tables.  Type single-spaced.  Do not number the pages 
-in the camera-ready version.
-Start all pages directly under the top margin.  See the guidelines
-later regarding formatting the first page.
-
-The maximum length of a manuscript is eight (8) pages for the main
-conference, printed single-sided, plus two (2) pages for references
-(see Section~\ref{sec:length} for additional information on the
-maximum number of pages). 
-
-By uncommenting {\small\verb|\naaclfinalcopy|} at the top of this 
- document, it will compile to produce an example of the camera-ready formatting; by leaving it commented out, the document will be anonymized for initial submission.  When you first create your submission on softconf, please fill in your submitted paper ID where {\small\verb|***|} appears in the {\small\verb|\def\naaclpaperid{***}|} definition at the top.
-
-The review process is double-blind, so do not include any author information (names, addresses) when submitting a paper for review.  
-However, you should maintain space for names and addresses so that they will fit in the final (accepted) version.  The NAACL HLT 2016 \LaTeX\ style will create a titlebox space of 2.5in for you when {\small\verb|\naaclfinalcopy|} is commented out.  
-
-\subsection{The Ruler}
-The NAACL HLT 2016 style defines a printed ruler which should be present in the
-version submitted for review.  The ruler is provided in order that
-reviewers may comment on particular lines in the paper without
-circumlocution.  If you are preparing a document without the provided
-style files, please arrange for an equivalent ruler to
-appear on the final output pages.  The presence or absence of the ruler
-should not change the appearance of any other content on the page.  The
-camera ready copy should not contain a ruler. (\LaTeX\ users may uncomment
-the {\small\verb|\naaclfinalcopy|} command in the document preamble.)  
-
-Reviewers:
-note that the ruler measurements do not align well with lines in the paper
---- this turns out to be very difficult to do well when the paper contains
-many figures and equations, and, when done, looks ugly.  Just use fractional
-references (e.g., the first line on this page is at mark $096.5$), although in most cases one would
-expect that the approximate location will be adequate.
-
-\subsection{Electronically-available resources}
-
-NAACL HLT provides this description in \LaTeX2e{} ({\small\tt naaclhlt2016.tex}) and PDF
-format ({\small\tt naaclhlt2016.pdf}), along with the \LaTeX2e{} style file used to
-format it ({\small\tt naaclhlt2016.sty}) and an ACL bibliography style ({\small\tt naaclhlt2016.bst})
-and example bibliography ({\small\tt naaclhlt2016.bib}).
-These files are all available at
-{\small\tt naacl.org/naacl-hlt-2016}.  A Microsoft Word
-template file ({\small\tt naaclhlt2016.dot}) is also available at the same URL. We
-strongly recommend the use of these style files, which have been
-appropriately tailored for the NAACL HLT 2016 proceedings.
-
-\subsection{Format of Electronic Manuscript}
-\label{sect:pdf}
-
-For the production of the electronic manuscript, you must use Adobe's
-Portable Document Format (PDF). This format can be generated from
-postscript files: on Unix systems, you can use {\small\tt ps2pdf} for this
-purpose; under Microsoft Windows, you can use Adobe's Distiller, or
-if you have cygwin installed, you can use {\small\tt dvipdf} or
-{\small\tt ps2pdf}.  Note 
-that some word processing programs generate PDF that may not include
-all the necessary fonts (esp.\ tree diagrams, symbols). When you print
-or create the PDF file, there is usually an option in your printer
-setup to include none, all, or just non-standard fonts.  Please make
-sure that you select the option of including ALL the fonts.  {\em
-  Before sending it, test your {\/\em PDF} by printing it from a
-  computer different from the one where it was created}. Moreover,
-some word processors may generate very large postscript/PDF files,
-where each page is rendered as an image. Such images may reproduce
-poorly.  In this case, try alternative ways to obtain the postscript
-and/or PDF.  One way on some systems is to install a driver for a
-postscript printer, send your document to the printer specifying
-``Output to a file'', then convert the file to PDF.
-
-For reasons of uniformity, Adobe's {\bf Times Roman} font should be
-used. In \LaTeX2e{} this is accomplished by putting
-\small
-\begin{verbatim}
-\usepackage{times}
-\usepackage{latexsym}
-\end{verbatim}
-\normalsize
-in the preamble.
-Additionally, it is of utmost importance to specify the {\bf
-  US-Letter format} (8.5in $\times$ 11in) when formatting the paper.
-When working with {\small\tt dvips}, for instance, one should specify {\small\tt -t letter}.
-
-Print-outs of the PDF file on US-Letter paper should be identical to the
-hardcopy version.  If you cannot meet the above requirements about the
-production of your electronic submission, please contact the
-publication chairs above  as soon as possible.
-
-\subsection{Layout}
-\label{ssec:layout}
-
-Format manuscripts with two columns to a page, following the manner in which these
-instructions are formatted. The exact dimensions for a page on US-Letter paper are:
-
-\begin{itemize}
-\item Left and right margins: 1 inch
-\item Top margin: 1 inch
-\item Bottom margin: 1 inch
-\item Column width: 3.15 inches
-\item Column height: 9 inches
-\item Gap between columns: 0.2 inches
-\end{itemize}
-
-\noindent Papers should not be submitted on any other paper size. Exceptionally,
-authors for whom it is \emph{impossible} to format on US-Letter paper 
-may format for \emph{A4} paper. In this case, they should keep the \emph{top}
-and \emph{left} margins as given above, use the same column width,
-height and gap, and modify the bottom and right margins as necessary.
-Note that the text will no longer be centered.
-
-\subsection{The First Page}
-\label{ssec:first}
-
-Center the title, author name(s) and affiliation(s) across both
-columns (or, in the case of initial submission, space for the names). 
-Do not use footnotes for affiliations.  
-Use the two-column format only when you begin the abstract.
-
-{\bf Title}: Place the title centered at the top of the first page, in
-a 15 point bold font.  (For a complete guide to font sizes and styles, see Table~\ref{font-table}.)
-Long titles should be typed on two lines without
-a blank line intervening. Approximately, put the title at 1in from the
-top of the page, followed by a blank line, then the author name(s),
-and the affiliation(s) on the following line.  Do not use only initials
-for given names (middle initials are allowed). Do not format surnames
-in all capitals (e.g., ``Mitchell,'' not ``MITCHELL'').  The affiliation should
-contain the author's complete address, and if possible, an electronic
-mail address. Leave about 0.75in between the affiliation and the body
-of the first page.
-
-{\bf Abstract}: Type the abstract at the beginning of the first
-column.  The width of the abstract text should be smaller than the
-width of the columns for the text in the body of the paper by about
-0.25in on each side.  Center the word {\bf Abstract} in a 12 point
-bold font above the body of the abstract. The abstract should be a
-concise summary of the general thesis and conclusions of the paper.
-It should be no longer than 200 words.  The abstract text should be in 10 point font.
-
-\begin{table}
-\centering
-\small
-\begin{tabular}{cc}
-\begin{tabular}{|l|l|}
-\hline
-{\bf Command} & {\bf Output}\\\hline
-\verb|{\"a}| & {\"a} \\
-\verb|{\^e}| & {\^e} \\
-\verb|{\`i}| & {\`i} \\ 
-\verb|{\.I}| & {\.I} \\ 
-\verb|{\o}| & {\o} \\
-\verb|{\'u}| & {\'u}  \\ 
-\verb|{\aa}| & {\aa}  \\\hline
-\end{tabular} & 
-\begin{tabular}{|l|l|}
-\hline
-{\bf Command} & {\bf  Output}\\\hline
-\verb|{\c c}| & {\c c} \\ 
-\verb|{\u g}| & {\u g} \\ 
-\verb|{\l}| & {\l} \\ 
-\verb|{\~n}| & {\~n} \\ 
-\verb|{\H o}| & {\H o} \\ 
-\verb|{\v r}| & {\v r} \\ 
-\verb|{\ss}| & {\ss} \\\hline
-\end{tabular}
-\end{tabular}
-\caption{Example commands for accented characters, to be used in, e.g., \BibTeX\ names.}\label{tab:accents}
-\end{table}
-
-{\bf Text}: Begin typing the main body of the text immediately after
-the abstract, observing the two-column format as shown in 
-the present document.  Do not include page numbers in the camera-ready manuscript.  
-
-{\bf Indent} when starting a new paragraph. For reasons of uniformity,
-use Adobe's {\bf Times Roman} fonts, with 11 points for text and 
-subsection headings, 12 points for section headings and 15 points for
-the title.  If Times Roman is unavailable, use {\bf Computer Modern
-  Roman} (\LaTeX2e{}'s default; see section \ref{sect:pdf} above).
-Note that the latter is about 10\% less dense than Adobe's Times Roman
-font.
-
-\subsection{Sections}
-
-{\bf Headings}: Type and label section and subsection headings in the
-style shown on the present document.  Use numbered sections (Arabic
-numerals) in order to facilitate cross references. Number subsections
-with the section number and the subsection number separated by a dot,
-in Arabic numerals. 
-
-{\bf Citations}: Citations within the text appear
-in parentheses as~\cite{Gusfield:97} or, if the author's name appears in
-the text itself, as Gusfield~\shortcite{Gusfield:97}.  Using the provided \LaTeX\ style, the former is accomplished using
-{\small\verb|\cite|} and the latter with {\small\verb|\shortcite|} or {\small\verb|\newcite|}.  Collapse multiple citations as in~\cite{Gusfield:97,Aho:72}; this is accomplished with the provided style using commas within the {\small\verb|\cite|} command, e.g., {\small\verb|\cite{Gusfield:97,Aho:72}|}.  
-Append lowercase letters to the year in cases of ambiguities.  
-Treat double authors as in~\cite{Aho:72}, but write as 
-in~\cite{Chandra:81} when more than two authors are involved.  
+ 
 
 \textbf{References}:  We recommend
 including references in a separate~{\small\texttt .bib} file, and include an example file 
