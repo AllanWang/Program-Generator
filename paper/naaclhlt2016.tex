@@ -42,7 +42,7 @@
 
 % https://github.com/acl-org/acl-pub/blob/gh-pages/paper_styles/archive/naaclhlt2016-latex/naaclhlt2016.pdf
 \author{Allan Wang \and Youngsun Jin \\
-        McGill University \\ \tt{allan.wang@mail.mcgill.ca} \\ \tt{youngsun.jin@mail.mcgill.ca}}  
+        McGill University \\ \tt{\{allan.wang,youngsun.jin\}@mail.mcgill.ca}}  
 \date{}
 
 \begin{document}
@@ -78,8 +78,77 @@ On top of being able to create a program, we wish to introduce a structure that 
 % TODO should we give an example?
 % Main goal of intro is to have the hypothesis, which is above   
 
-\section{General Instructions}
- 
+\section{Methodology}
+
+\subsection{CCG Parsing}
+
+In creating our grammar, we defined a set of rules for each type we may encounter. 
+We have the following primitives: {\small\verb|program|}, {\small\verb|creation|}, and {\small\verb|range|}.
+A program represents an independent set of rules that is capable or defining a runnable program.
+A creation denotes a rule that generates new data. 
+This can be any viable programming type, but in our case specifically, it represents an integer list.
+A range represents a phrase with a minimum number and maximum number.
+This is necessary in creating a proper list.
+
+For conditions, we can create higher order types that build upon existing lists.
+For instance, an `even list from 0 to 100' would still represent ths {\small\verb|list|} primitive, with a new feature attached.
+Here, we begin to face some problems.
+We can for instance want a `list from 0 to 100 that is divisible by 4', but a `divisible by 4 list from 0 to 100' would not make sense.
+We can work around this by introducing special groups per condition, and making sure that our program rules respect the expected groups based on the order of the initial sentence.
+
+Another problem we face is supporting number parsing, where a number primitive can be any valid sequence of digits. 
+One way we considered was post processing, where we would replace each number with a special symbol, create our tree, then add back the numbers in the same order as they appeared in the sentence.
+This poses a problem, as our assumption of word order may not always be correct. As an example, both `create a list from 0 to 100' and `create a list to 100 from 0' are represented by the same tree, and yet the numbers are not in the same order.
+We worked around this by extracting all the numbers in the word token, adding rules that map them to the same integer primitive, and then creating a new ccg parser for each sentence.
+
+The final result allows us to create CCGs like so:
+
+TODO ADD IMAGE
+
+\subsection{Language Formatting}
+
+As we wish to parse our input using a CCG, we must first ensure that our corpus is contained in our lexicon.
+We can simply do so be removing all words that are not part of our lexicon, but that would greatly constrain our input, and may also result in code that does not represent what we wanted.
+To support a wider set of tokens, we will preprocess the text with a dictionary of token words to NLTK lemma keys.
+We can use the keys to extract synonyms, and provided that each word is unique to a specific token, we can replace them without altering the semantics.
+
+We still need to filter out the remaining words, but in checking the part of speeches, we noted that condition features typically contain an adjective or adverb.
+We can therefore filter out words without those part of speeches, and return an error when other unknown tokens are found.
+This allows us to parse instructions beyond the keywords that we select, and allows us to reject inputs that we cannot parse with reasonable confidence.
+
+\subsection{Feature Mapping}
+
+Once we have our semantics tree, we can map them into programming rules.
+By the way we defined our primitives, it is noted that each node can lead to a part of a programming with the information within its subtree.
+As we are familiar with both the number of children per primitive, as well as their orders, we can create code templates that take in child subcomponents and generate a new subcomponent.
+Once we get to the program primitive, the result should be a working program.
+
+\subsection{Code Generation}
+
+Given that our feature mapping aims to convert a semantics tree to code, our code generation is essentially applying our feature map to the root node.
+However, the process is not so simple.
+A common part of many programming languages is a set of import rules at the top of the file.
+While we can add each rule in our template if they don't appear elsewhere in the subtree, this can quickly become messy for large trees.
+A simpler method is to aggregate all necessary imports, and to post process our code to ensure we add unique imports.
+We did so by introducing a variable in our feature map output, so that each token is mapped to both a template and an import set.
+
+It is worth noting that method is quite extensible, as it does not affect the generation of our program body.
+We can almost view it as a new feature tree, where we can define a new mapping to further convert it into code.
+In the case of imports, the mapping per node is to simply aggregate the unique key set and to output each of them in a new line.
+
+\subsection{Negation Extension}
+
+To test the extensibility of our implementation, we implemented negation using our existing structure.
+We may note that a negation can take place before any existing condition, and will result in a new predicate with the opposite output.
+Furthermore, as an optimization, two consecutive negations will cancel out. 
+While we could preprocess the text and remove consecutive negations, we decided to handle this within the parse tree.
+To support the negation feature, we will add another attribute in our feature map for conditions only.
+When we encounter a negation feature in our tree, we will simply take the child and flip the negation field.
+Note that this does mean that we have to apply our template function lazily, as we can only be sure of a condition's negation after the full sentence is parsed.
+
+\pagebreak
+~
+\pagebreak
 
 \textbf{References}:  We recommend
 including references in a separate~{\small\texttt .bib} file, and include an example file 
