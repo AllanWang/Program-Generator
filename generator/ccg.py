@@ -2,6 +2,9 @@ from typing import Set, Optional
 
 import nltk
 from nltk.ccg import chart, lexicon, CCGLexicon
+from os import sys, path
+
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from generator.formatter import Formatter
 from generator.node import Node

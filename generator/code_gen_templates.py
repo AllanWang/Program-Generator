@@ -1,3 +1,7 @@
+from os import sys, path
+
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 from generator.ccg import parse_to_node
 from generator.code_gen import *
 

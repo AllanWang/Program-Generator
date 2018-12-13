@@ -1,10 +1,13 @@
 from dataclasses import dataclass, field
 from typing import Set, Dict, Union, Callable, List, Optional, Any
 
+from os import sys, path
+
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 from generator.node import Node
 
 CallableTemplate = Callable[[List], Any]
-
 
 @dataclass
 class CodeTemplate:
