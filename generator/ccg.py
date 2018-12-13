@@ -2,6 +2,9 @@ from typing import Set, Optional
 
 import nltk
 from nltk.ccg import chart, lexicon, CCGLexicon
+import sys
+mypath = 'C:/Users/Youngsun Jin/Desktop/Program-Generator'
+sys.path.append(mypath)
 
 from generator.formatter import Formatter
 from generator.node import Node

@@ -5,6 +5,7 @@ from generator.node import Node
 
 CallableTemplate = Callable[[List], Any]
 
+from os import sys, path
 
 @dataclass
 class CodeTemplate:
