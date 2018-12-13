@@ -176,6 +176,13 @@ To support the negation feature, we will add another attribute in our feature ma
 When we encounter a negation feature in our tree, we will simply take the child and flip the negation field.
 Note that this does mean that we have to apply our template function lazily, as we can only be sure of a condition's negation after the full sentence is parsed.
 
+\section{Conclusion}
+
+From our results, we have shown that it is possible to create a program generator, whose complexity scales relatively linearly with the problem domain.
+We have successfully shown that it is easy to extend upon the generator with minimal effects on existing logic, and that it is easy to support new languages.
+The project is currently limited in that we focused exclusively on numbered lists, with operations that operate on integers.
+An extension can be made to allow for differing types, and perhaps to also support more mutation oriented programming vs functional programming.
+
 \pagebreak
 ~
 \pagebreak
