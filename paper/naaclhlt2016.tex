@@ -5,8 +5,12 @@
 \documentclass[11pt,letterpaper]{article}
 \usepackage{naaclhlt2016}
 \usepackage{times}
-\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\captionsetup{compatibility=false}
+\graphicspath{ {images/} }
 
+\usepackage{latexsym}
 % \naaclfinalcopy % Uncomment this line for the final submission
 \def\naaclpaperid{***} %  Enter the naacl Paper ID here
 
@@ -66,7 +70,7 @@ For a new developer, programming languages contain lots of domain-specific rules
 For experienced developers, programming languages may introduce completely new paradigms, and may not be easily translated from known languages through one to one mappings of keywords.
 One way to help overcome this technical hurdle is to read official documentation, or a large set of common examples.
 However, this is often a big time investment for a user who just wants to explore the basics of a language.
-Moreover, the examples may not completely reflect the desired use case, and can often be irrelevant to the problem at hand.
+Moreover, the examples may not completely reflect the desired use case, and can often be irrelevant to the problem at hand.\\
 
 Our goal is to explore the feasibility of mapping natural languages to programs by extracting features and creating runnable code.
 This would greatly reduce the learning curve when dealing with simple operations, and will help introduce language features without the developer knowing about them beforehand.
@@ -121,18 +125,18 @@ A program represents an independent set of rules that is capable or defining a r
 A creation denotes a rule that generates new data. 
 This can be any viable programming type, but in our case specifically, it represents an integer list.
 A range represents a phrase with a minimum number and maximum number.
-This is necessary in creating a proper list.
+This is necessary in creating a proper list.\\
 
 For conditions, we can create higher order types that build upon existing lists.
 For instance, an `even list from 0 to 100' would still represent ths {\small\verb|list|} primitive, with a new feature attached.
 Here, we begin to face some problems.
 We can for instance want a `list from 0 to 100 that is divisible by 4', but a `divisible by 4 list from 0 to 100' would not make sense.
-We can work around this by introducing special groups per condition, and making sure that our program rules respect the expected groups based on the order of the initial sentence.
+We can work around this by introducing special groups per condition, and making sure that our program rules respect the expected groups based on the order of the initial sentence.\\
 
 Another problem we face is supporting number parsing, where a number primitive can be any valid sequence of digits. 
 One way we considered was post processing, where we would replace each number with a special symbol, create our tree, then add back the numbers in the same order as they appeared in the sentence.
 This poses a problem, as our assumption of word order may not always be correct. As an example, both `create a list from 0 to 100' and `create a list to 100 from 0' are represented by the same tree, and yet the numbers are not in the same order.
-We worked around this by extracting all the numbers in the word token, adding rules that map them to the same integer primitive, and then creating a new ccg parser for each sentence.
+We worked around this by extracting all the numbers in the word token, adding rules that map them to the same integer primitive, and then creating a new ccg parser for each sentence.\\
 
 The final result allows us to create CCGs like in figure 1.
 \subsection{Language Formatting}
@@ -160,11 +164,28 @@ However, the process is not so simple.
 A common part of many programming languages is a set of import rules at the top of the file.
 While we can add each rule in our template if they don't appear elsewhere in the subtree, this can quickly become messy for large trees.
 A simpler method is to aggregate all necessary imports, and to post process our code to ensure we add unique imports.
-We did so by introducing a variable in our feature map output, so that each token is mapped to both a template and an import set.
+We did so by introducing a variable in our feature map output, so that each token is mapped to both a template and an import set.\\
 
 It is worth noting that method is quite extensible, as it does not affect the generation of our program body.
 We can almost view it as a new feature tree, where we can define a new mapping to further convert it into code.
 In the case of imports, the mapping per node is to simply aggregate the unique key set and to output each of them in a new line.
+
+\begin{figure*}[t!]
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[height=1.2in]{Java}
+        \caption{Java}
+    \end{subfigure}%
+    ~ 
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[height=0.8in]{kotlin}
+        \caption{Kotlin}
+    \end{subfigure}
+    
+    \caption{Output of \lq create even list from 0 to 100 that is bigger than 5'}
+\end{figure*}
 
 \subsection{Negation Extension}
 
@@ -176,16 +197,209 @@ To support the negation feature, we will add another attribute in our feature ma
 When we encounter a negation feature in our tree, we will simply take the child and flip the negation field.
 Note that this does mean that we have to apply our template function lazily, as we can only be sure of a condition's negation after the full sentence is parsed.
 
+\section{Result}
+Our baseline is the nearest-neighbor approach. Given a table of program-description pairs and the input of natural language sentence, we search for the closest description in a table of program-description pairs using cosine similarity, and return the corresponding line of code.\\
+
+The baseline has a major flaw. In order to compare two descriptions of code, we first needed to convert text into bag-of-words features. Bag-of-words have two major weaknesses: they lose the ordering of words and the semantics of words are neglected. In our task, the order of words cannot be ignored because we need to know which conditions are being negated. Furthermore, bag-of-words features cannot interpret double negation. For instance, if the input is 'create a list from 0 to 100 that is not not even', it is more likely that the baseline would select the creation with 'not even' instead of 'even'.\\ 
+
+This problem has overcome by the use of CCG, by tagging each word as functional feature and using inference rules to derive the semantic representation of natural language sentence. In regards to evaluation of our model, unfortunately we could not find any test corpus that is appropriate for our task. Instead, we have manually constructed the testing instances in the unit test environment. The each test instance passes the test if the output of the generated code matches the expected output. We have covered 10 testing instances with 4 different programming languages, such as Python, Kotlin, Java, and Elm. All 40 testing instances have passed. Figure 2 shows the examples of code output. 
+
 \section{Conclusion}
 
 From our results, we have shown that it is possible to create a program generator, whose complexity scales relatively linearly with the problem domain.
 We have successfully shown that it is easy to extend upon the generator with minimal effects on existing logic, and that it is easy to support new languages.
 The project is currently limited in that we focused exclusively on numbered lists, with operations that operate on integers.
-An extension can be made to allow for differing types, and perhaps to also support more mutation oriented programming vs functional programming.
+An extension can be made to allow for differing types, and perhaps to also support more mutation oriented programming versus functional programming.
+
+\section{Statement of Contribution}
+Youngsun Jin has partially implemented CCG parser and baseline.
+
+
+\bibliography{naaclhlt2016}
+\bibliographystyle{naaclhlt2016}
 
 \pagebreak
 ~
 \pagebreak
+
+\subsection{The Ruler}
+The NAACL HLT 2016 style defines a printed ruler which should be present in the
+version submitted for review.  The ruler is provided in order that
+reviewers may comment on particular lines in the paper without
+circumlocution.  If you are preparing a document without the provided
+style files, please arrange for an equivalent ruler to
+appear on the final output pages.  The presence or absence of the ruler
+should not change the appearance of any other content on the page.  The
+camera ready copy should not contain a ruler. (\LaTeX\ users may uncomment
+the {\small\verb|\naaclfinalcopy|} command in the document preamble.)  
+
+Reviewers:
+note that the ruler measurements do not align well with lines in the paper
+--- this turns out to be very difficult to do well when the paper contains
+many figures and equations, and, when done, looks ugly.  Just use fractional
+references (e.g., the first line on this page is at mark $096.5$), although in most cases one would
+expect that the approximate location will be adequate.
+
+\subsection{Electronically-available resources}
+
+NAACL HLT provides this description in \LaTeX2e{} ({\small\tt naaclhlt2016.tex}) and PDF
+format ({\small\tt naaclhlt2016.pdf}), along with the \LaTeX2e{} style file used to
+format it ({\small\tt naaclhlt2016.sty}) and an ACL bibliography style ({\small\tt naaclhlt2016.bst})
+and example bibliography ({\small\tt naaclhlt2016.bib}).
+These files are all available at
+{\small\tt naacl.org/naacl-hlt-2016}.  A Microsoft Word
+template file ({\small\tt naaclhlt2016.dot}) is also available at the same URL. We
+strongly recommend the use of these style files, which have been
+appropriately tailored for the NAACL HLT 2016 proceedings.
+
+\subsection{Format of Electronic Manuscript}
+\label{sect:pdf}
+
+For the production of the electronic manuscript, you must use Adobe's
+Portable Document Format (PDF). This format can be generated from
+postscript files: on Unix systems, you can use {\small\tt ps2pdf} for this
+purpose; under Microsoft Windows, you can use Adobe's Distiller, or
+if you have cygwin installed, you can use {\small\tt dvipdf} or
+{\small\tt ps2pdf}.  Note 
+that some word processing programs generate PDF that may not include
+all the necessary fonts (esp.\ tree diagrams, symbols). When you print
+or create the PDF file, there is usually an option in your printer
+setup to include none, all, or just non-standard fonts.  Please make
+sure that you select the option of including ALL the fonts.  {\em
+  Before sending it, test your {\/\em PDF} by printing it from a
+  computer different from the one where it was created}. Moreover,
+some word processors may generate very large postscript/PDF files,
+where each page is rendered as an image. Such images may reproduce
+poorly.  In this case, try alternative ways to obtain the postscript
+and/or PDF.  One way on some systems is to install a driver for a
+postscript printer, send your document to the printer specifying
+``Output to a file'', then convert the file to PDF.
+
+For reasons of uniformity, Adobe's {\bf Times Roman} font should be
+used. In \LaTeX2e{} this is accomplished by putting
+\small
+\begin{verbatim}
+\usepackage{times}
+\usepackage{latexsym}
+\end{verbatim}
+\normalsize
+in the preamble.
+Additionally, it is of utmost importance to specify the {\bf
+  US-Letter format} (8.5in $\times$ 11in) when formatting the paper.
+When working with {\small\tt dvips}, for instance, one should specify {\small\tt -t letter}.
+
+Print-outs of the PDF file on US-Letter paper should be identical to the
+hardcopy version.  If you cannot meet the above requirements about the
+production of your electronic submission, please contact the
+publication chairs above  as soon as possible.
+
+\subsection{Layout}
+\label{ssec:layout}
+
+Format manuscripts with two columns to a page, following the manner in which these
+instructions are formatted. The exact dimensions for a page on US-Letter paper are:
+
+\begin{itemize}
+\item Left and right margins: 1 inch
+\item Top margin: 1 inch
+\item Bottom margin: 1 inch
+\item Column width: 3.15 inches
+\item Column height: 9 inches
+\item Gap between columns: 0.2 inches
+\end{itemize}
+
+\noindent Papers should not be submitted on any other paper size. Exceptionally,
+authors for whom it is \emph{impossible} to format on US-Letter paper 
+may format for \emph{A4} paper. In this case, they should keep the \emph{top}
+and \emph{left} margins as given above, use the same column width,
+height and gap, and modify the bottom and right margins as necessary.
+Note that the text will no longer be centered.
+
+\subsection{The First Page}
+\label{ssec:first}
+
+Center the title, author name(s) and affiliation(s) across both
+columns (or, in the case of initial submission, space for the names). 
+Do not use footnotes for affiliations.  
+Use the two-column format only when you begin the abstract.
+
+{\bf Title}: Place the title centered at the top of the first page, in
+a 15 point bold font.  (For a complete guide to font sizes and styles, see Table~\ref{font-table}.)
+Long titles should be typed on two lines without
+a blank line intervening. Approximately, put the title at 1in from the
+top of the page, followed by a blank line, then the author name(s),
+and the affiliation(s) on the following line.  Do not use only initials
+for given names (middle initials are allowed). Do not format surnames
+in all capitals (e.g., ``Mitchell,'' not ``MITCHELL'').  The affiliation should
+contain the author's complete address, and if possible, an electronic
+mail address. Leave about 0.75in between the affiliation and the body
+of the first page.
+
+{\bf Abstract}: Type the abstract at the beginning of the first
+column.  The width of the abstract text should be smaller than the
+width of the columns for the text in the body of the paper by about
+0.25in on each side.  Center the word {\bf Abstract} in a 12 point
+bold font above the body of the abstract. The abstract should be a
+concise summary of the general thesis and conclusions of the paper.
+It should be no longer than 200 words.  The abstract text should be in 10 point font.
+
+\begin{table}
+\centering
+\small
+\begin{tabular}{cc}
+\begin{tabular}{|l|l|}
+\hline
+{\bf Command} & {\bf Output}\\\hline
+\verb|{\"a}| & {\"a} \\
+\verb|{\^e}| & {\^e} \\
+\verb|{\`i}| & {\`i} \\ 
+\verb|{\.I}| & {\.I} \\ 
+\verb|{\o}| & {\o} \\
+\verb|{\'u}| & {\'u}  \\ 
+\verb|{\aa}| & {\aa}  \\\hline
+\end{tabular} & 
+\begin{tabular}{|l|l|}
+\hline
+{\bf Command} & {\bf  Output}\\\hline
+\verb|{\c c}| & {\c c} \\ 
+\verb|{\u g}| & {\u g} \\ 
+\verb|{\l}| & {\l} \\ 
+\verb|{\~n}| & {\~n} \\ 
+\verb|{\H o}| & {\H o} \\ 
+\verb|{\v r}| & {\v r} \\ 
+\verb|{\ss}| & {\ss} \\\hline
+\end{tabular}
+\end{tabular}
+\caption{Example commands for accented characters, to be used in, e.g., \BibTeX\ names.}\label{tab:accents}
+\end{table}
+
+{\bf Text}: Begin typing the main body of the text immediately after
+the abstract, observing the two-column format as shown in 
+the present document.  Do not include page numbers in the camera-ready manuscript.  
+
+{\bf Indent} when starting a new paragraph. For reasons of uniformity,
+use Adobe's {\bf Times Roman} fonts, with 11 points for text and 
+subsection headings, 12 points for section headings and 15 points for
+the title.  If Times Roman is unavailable, use {\bf Computer Modern
+  Roman} (\LaTeX2e{}'s default; see section \ref{sect:pdf} above).
+Note that the latter is about 10\% less dense than Adobe's Times Roman
+font.
+
+\subsection{Sections}
+
+{\bf Headings}: Type and label section and subsection headings in the
+style shown on the present document.  Use numbered sections (Arabic
+numerals) in order to facilitate cross references. Number subsections
+with the section number and the subsection number separated by a dot,
+in Arabic numerals. 
+
+{\bf Citations}: Citations within the text appear
+in parentheses as~\cite{Gusfield:97} or, if the author's name appears in
+the text itself, as Gusfield~\shortcite{Gusfield:97}.  Using the provided \LaTeX\ style, the former is accomplished using
+{\small\verb|\cite|} and the latter with {\small\verb|\shortcite|} or {\small\verb|\newcite|}.  Collapse multiple citations as in~\cite{Gusfield:97,Aho:72}; this is accomplished with the provided style using commas within the {\small\verb|\cite|} command, e.g., {\small\verb|\cite{Gusfield:97,Aho:72}|}.  
+Append lowercase letters to the year in cases of ambiguities.  
+Treat double authors as in~\cite{Aho:72}, but write as 
+in~\cite{Chandra:81} when more than two authors are involved.  
 
 \textbf{References}:  We recommend
 including references in a separate~{\small\texttt .bib} file, and include an example file 
@@ -195,8 +409,6 @@ References stored in the separate~{\small\tt .bib} file are inserted into the do
 
 \small
 \begin{verbatim}
-\bibliography{naaclhlt2016}
-\bibliographystyle{naaclhlt2016}
 \end{verbatim}
 \normalsize 
 
@@ -328,9 +540,5 @@ contributions.
 \section*{Acknowledgments}
 
 Do not number the acknowledgment section.
-
-\bibliography{naaclhlt2016}
-\bibliographystyle{naaclhlt2016}
-
 
 \end{document}
