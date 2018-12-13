@@ -78,6 +78,20 @@ On top of being able to create a program, we wish to introduce a structure that 
 % TODO should we give an example?
 % Main goal of intro is to have the hypothesis, which is above   
 
+\section{Related Work}
+
+\subsection{Natural Language to Database Query}
+
+One of the earliest system that makes use of natural language translation into executable code is a Natural Language Interface
+for a Database (NLIDB) (Androutsopouloset al., 1995). When databases contain an enormous number records, a specific query language such as the Structured Query Language (SQL) needs to be used in order to extract specific records specified by the expert user. This means that one needs to understand the syntax for querying the database and the way to join the underlying tables to extract necessary records. However, this introduces difficulties for users because they may not be aware of the structure of the database. A NLIDB simplifies the task by providing the user interface to input natural languages to query the database. We can clearly see how this is similar to our task. We want to take natural language as an input, and output equivalent executable code in the user-specified language which returns a collection of entities with some conditions specified by the user. For feasibility, we have simplified the problem to creating a list of numbers with conditions that can be applied to each number inside the list.   
+
+\subsection{Natural Language to Java}
+NaturalJava (Price et al., 2000) is one of the early systems that 
+allows to create Java programs from English commands. The system accepts English sentences as input and then uses information extraction techniques to map one of 400 case frames. Then the interpreter infers changes that have to be made using a decision tree, which then manipulates Java abstract syntax tree (AST). The AST is automatically converted into Java source code. Although our task is similar in a sense that both translate natural language into code, we do not manually create case frames to infer programs. Our task is more involved with parsing the natural language sentence using a set of rules to generate semantic representation of the input.
+
+\subsection{Unrestricted Natural Language}
+One of the most powerful natural language interface was developed (David et al., 2006). They presented the prototype system which takes unrestricted English as input and output code in the Python programming language. They used Combinatory Categorial Grammar (CCG) as a base tool to generate syntactic categories for English sentences. Then the \textit{ccg2sem} system (Bos et al., 2004; Black-burn and Bos, 2005) was used to convert CCG parse trees into Discourse Representation Structure (DRS). Having extracted the functional verb and its arguments, if the semantic information matches with predefined primitives, then the equivalent code is generated. Unlike our task, they trained the new model for the parser on the manually-generated corpus as a result of the differences between standard English sentences and programming statements. However, in this work, we predefined the set of rules in CCG to assign each word with functional feature instead of syntactic category, which will be then used to generate the semantic representation of the whole sentence.
+
 \section{Methodology}
 
 \begin{figure*}[t]

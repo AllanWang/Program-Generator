@@ -16,6 +16,8 @@ sentences: [(str, [int])] = [
     ("create even list from 0 to 100 that is bigger than 5",
      [x for x in range(0, 101) if x % 2 == 0 and x > 5]),
     ("create even list from 0 to 100 that is not even",
+     []),
+    ("create even list from 0 to 100 that is not not odd",
      [])
 ]
 
