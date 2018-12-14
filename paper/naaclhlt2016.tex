@@ -6,7 +6,7 @@
 \usepackage{naaclhlt2016}
 \usepackage{times}
 \usepackage{latexsym}
-% \naaclfinalcopy % Uncomment this line for the final submission
+\naaclfinalcopy % Uncomment this line for the final submission
 \def\naaclpaperid{***} %  Enter the naacl Paper ID here
 
 % To expand the titlebox for more authors, uncomment
@@ -217,9 +217,13 @@ class Code {
 \section{Conclusion}
 
 From our results, we show that it is possible to create a program generator, whose complexity scales relatively linearly with the problem domain.
-We have successfully shown that it is easy to extend upon the generator with minimal effects on existing logic, and that it is easy to support new languages.
-The project is currently limited in that we focused exclusively on numbered lists, with operations that work exclusively on integers.
+We have successfully shown that it is easy to extend upon the generator with minimal changes on existing logic, and that it is easy to support new languages.
+
+The project is currently limited in that we focused exclusively on numbered lists, with operations that work primarily on integers.
 An extension can be made to allow for differing types, and also to support more mutation oriented programming versus pure functional programming.
+While we have shown that it is feasible to embed features that aren't in a language's stdlib (such as checking for prime numbers in most programming languages), we have not fully explored the use case.
+Lastly, our code generation does not give the user the ability to name their variables. 
+This is primarily due to our idea that variable naming is not a typical restriction provided by non programmers, but it may be interesting to see how the context of the natural language inputs can allow for such changes.
 
 \nocite{*}
 \bibliography{naaclhlt2016}
