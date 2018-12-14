@@ -53,7 +53,7 @@ On top of being able to create a program, we wish to introduce a structure that 
 
 \subsection{Natural Language to Database Query}
 
-One of the earliest system that makes use of natural language translation into executable code is a Natural Language Interface for a Database ~\cite{Androutsopoulos1995NaturalLI}. 
+One of the earliest system that makes use of natural language translation into executable code is a Natural Language Interface for a Database~\cite{Androutsopoulos1995NaturalLI}. 
 When databases contain enormous number records, a specific query language such as the Structured Query Language (SQL) needs to be used in order to extract records specified by the user. 
 This means that one needs to understand the syntax for querying the database and the way to join the underlying tables to extract necessary records. 
 However, this introduces difficulties for users because they may not be aware of the structure of the database. 
@@ -62,7 +62,7 @@ We wish to accomplish a similar task, but in the scope of general program code v
 For feasibility, we have simplified our problem to creating a list of numbers with conditions that can be applied to each number inside the list.   
 
 \subsection{Natural Language to Java}
-NaturalJava ~\cite{Price2000NaturalJavaAN} is one of the early systems that 
+NaturalJava~\cite{Price2000NaturalJavaAN} is one of the early systems that 
 allows to create Java programs from English commands. 
 The system accepts English sentences as input and then uses information extraction techniques to map one of 400 case frames. 
 The interpreter infers changes that have to be made using a decision tree. In response, the Abstract Syntax Tree (AST) is modified, and it is automatically converted into Java source code. 
@@ -70,10 +70,10 @@ Although our task is similar in a sense that both translate natural language int
 Our task is more involved with parsing the natural language sentence using a set of rules to generate semantic representation of the input.
 
 \subsection{Unrestricted Natural Language}
-One of the most powerful natural language interface was developed ~\cite{Vadas2005ProgrammingWU}. 
+One of the most powerful natural language interface was developed~\cite{Vadas2005ProgrammingWU}. 
 They presented the prototype system which takes unrestricted English as input and output code in the Python programming language. 
 They used Combinatory Categorial Grammar (CCG) as a base tool to generate syntactic categories for English sentences. 
-Then the \textit{ccg2sem} system (Bos et al., 2004; Black-burn and Bos, 2005) was used to convert CCG parse trees into Discourse Representation Structure (DRS). 
+Then the \textit{ccg2sem} system~\cite{Blackburn2005RepresentationAI} was used to convert CCG parse trees into Discourse Representation Structure (DRS). 
 Having extracted the functional verb and its arguments, if the semantic information matches with predefined primitives, then the equivalent code is generated. 
 Unlike our task, they trained the new model for the parser on the manually-generated corpus as a result of the differences between standard English sentences and programming statements. 
 However, in this work, we predefined the set of rules in CCG to assign each word with functional feature instead of syntactic category, which will be then used to generate the semantic representation of the whole sentence.
