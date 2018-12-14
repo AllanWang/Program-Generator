@@ -178,13 +178,13 @@ Note that this does mean that we have to apply our template function lazily, as 
 \begin{figure}[t!]
   \small
   \begin{verbatim}
-  fun code() =
-        (0..100).asSequence()
-                .filter {it % 2 == 0}
-                .filter {it > 5}
-                .toList()
+fun code() =
+      (0..100).asSequence()
+              .filter {it % 2 == 0}
+              .filter {it > 5}
+              .toList()
   \end{verbatim}
-  \caption{Kotlin program equivalent to \lq create even list from 0 to 100 that is bigger than 5'}
+  \caption{Kotlin program equivalent to `create even list from 0 to 100 that is bigger than 5'}
 \end{figure}
 
 \section{Result}
@@ -194,7 +194,7 @@ The baseline has a major flaw. In order to compare two descriptions of code, we 
 
 This problem has overcome by the use of CCG, by tagging each word as functional feature and using inference rules to derive the semantic representation of natural language sentence. In regards to evaluation of our model, unfortunately we could not find any test corpus that is appropriate for our task. Instead, we have manually constructed the testing instances in the unit test environment. The each test instance passes the test if the output of the generated code matches the expected output. We have covered 10 testing instances with 4 different programming languages, such as Python, Kotlin, Java, and Elm. All 40 testing instances have passed. Figure 2 shows the examples of code output. 
 
-\begin{figure}[t!]
+\begin{figure}
   \small
   \begin{verbatim}
 import java.util.List;
@@ -210,7 +210,7 @@ class Code {
   }
 }
   \end{verbatim}
-  \caption{Kotlin program equivalent to \lq create even list from 0 to 100 that is bigger than 5'}
+  \caption{Java program equivalent to `create even list from 0 to 100 that is bigger than 5'}
 \end{figure}
 \section{Conclusion}
 
