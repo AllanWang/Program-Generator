@@ -5,11 +5,6 @@
 \documentclass[11pt,letterpaper]{article}
 \usepackage{naaclhlt2016}
 \usepackage{times}
-\usepackage{graphicx}
-\usepackage{subcaption}
-\captionsetup{compatibility=false}
-\graphicspath{ {images/} }
-
 \usepackage{latexsym}
 % \naaclfinalcopy % Uncomment this line for the final submission
 \def\naaclpaperid{***} %  Enter the naacl Paper ID here
@@ -70,7 +65,7 @@ For a new developer, programming languages contain lots of domain-specific rules
 For experienced developers, programming languages may introduce completely new paradigms, and may not be easily translated from known languages through one to one mappings of keywords.
 One way to help overcome this technical hurdle is to read official documentation, or a large set of common examples.
 However, this is often a big time investment for a user who just wants to explore the basics of a language.
-Moreover, the examples may not completely reflect the desired use case, and can often be irrelevant to the problem at hand.\\
+Moreover, the examples may not completely reflect the desired use case, and can often be irrelevant to the problem at hand.
 
 Our goal is to explore the feasibility of mapping natural languages to programs by extracting features and creating runnable code.
 This would greatly reduce the learning curve when dealing with simple operations, and will help introduce language features without the developer knowing about them beforehand.
@@ -125,18 +120,18 @@ A program represents an independent set of rules that is capable or defining a r
 A creation denotes a rule that generates new data. 
 This can be any viable programming type, but in our case specifically, it represents an integer list.
 A range represents a phrase with a minimum number and maximum number.
-This is necessary in creating a proper list.\\
+This is necessary in creating a proper list.
 
 For conditions, we can create higher order types that build upon existing lists.
 For instance, an `even list from 0 to 100' would still represent ths {\small\verb|list|} primitive, with a new feature attached.
 Here, we begin to face some problems.
 We can for instance want a `list from 0 to 100 that is divisible by 4', but a `divisible by 4 list from 0 to 100' would not make sense.
-We can work around this by introducing special groups per condition, and making sure that our program rules respect the expected groups based on the order of the initial sentence.\\
+We can work around this by introducing special groups per condition, and making sure that our program rules respect the expected groups based on the order of the initial sentence.
 
 Another problem we face is supporting number parsing, where a number primitive can be any valid sequence of digits. 
 One way we considered was post processing, where we would replace each number with a special symbol, create our tree, then add back the numbers in the same order as they appeared in the sentence.
 This poses a problem, as our assumption of word order may not always be correct. As an example, both `create a list from 0 to 100' and `create a list to 100 from 0' are represented by the same tree, and yet the numbers are not in the same order.
-We worked around this by extracting all the numbers in the word token, adding rules that map them to the same integer primitive, and then creating a new ccg parser for each sentence.\\
+We worked around this by extracting all the numbers in the word token, adding rules that map them to the same integer primitive, and then creating a new ccg parser for each sentence.
 
 The final result allows us to create CCGs like in figure 1.
 \subsection{Language Formatting}
@@ -164,28 +159,11 @@ However, the process is not so simple.
 A common part of many programming languages is a set of import rules at the top of the file.
 While we can add each rule in our template if they don't appear elsewhere in the subtree, this can quickly become messy for large trees.
 A simpler method is to aggregate all necessary imports, and to post process our code to ensure we add unique imports.
-We did so by introducing a variable in our feature map output, so that each token is mapped to both a template and an import set.\\
+We did so by introducing a variable in our feature map output, so that each token is mapped to both a template and an import set.
 
 It is worth noting that method is quite extensible, as it does not affect the generation of our program body.
 We can almost view it as a new feature tree, where we can define a new mapping to further convert it into code.
 In the case of imports, the mapping per node is to simply aggregate the unique key set and to output each of them in a new line.
-
-\begin{figure*}[t!]
-    \centering
-    \begin{subfigure}[t]{0.5\textwidth}
-        \centering
-        \includegraphics[height=1.2in]{java}
-        \caption{Java}
-    \end{subfigure}%
-    ~ 
-    \begin{subfigure}[t]{0.5\textwidth}
-        \centering
-        \includegraphics[height=0.8in]{kotlin}
-        \caption{Kotlin}
-    \end{subfigure}
-    
-    \caption{Output of \lq create even list from 0 to 100 that is bigger than 5'}
-\end{figure*}
 
 \subsection{Negation Extension}
 
@@ -197,13 +175,43 @@ To support the negation feature, we will add another attribute in our feature ma
 When we encounter a negation feature in our tree, we will simply take the child and flip the negation field.
 Note that this does mean that we have to apply our template function lazily, as we can only be sure of a condition's negation after the full sentence is parsed.
 
-\section{Result}
-Our baseline is the nearest-neighbor approach. Given a table of program-description pairs and the input of natural language sentence, we search for the closest description in a table of program-description pairs using cosine similarity, and return the corresponding line of code.\\
+\begin{figure}[t!]
+  \small
+  \begin{verbatim}
+  fun code() =
+        (0..100).asSequence()
+                .filter {it % 2 == 0}
+                .filter {it > 5}
+                .toList()
+  \end{verbatim}
+  \caption{Kotlin program equivalent to \lq create even list from 0 to 100 that is bigger than 5'}
+\end{figure}
 
-The baseline has a major flaw. In order to compare two descriptions of code, we first needed to convert text into bag-of-words features. Bag-of-words have two major weaknesses: they lose the ordering of words and the semantics of words are neglected. In our task, the order of words cannot be ignored because we need to know which conditions are being negated. Furthermore, bag-of-words features cannot interpret double negation. For instance, if the input is 'create a list from 0 to 100 that is not not even', it is more likely that the baseline would select the creation with 'not even' instead of 'even'.\\ 
+\section{Result}
+Our baseline is the nearest-neighbor approach. Given a table of program-description pairs and the input of natural language sentence, we search for the closest description in a table of program-description pairs using cosine similarity, and return the corresponding line of code.
+
+The baseline has a major flaw. In order to compare two descriptions of code, we first needed to convert text into bag-of-words features. Bag-of-words have two major weaknesses: they lose the ordering of words and the semantics of words are neglected. In our task, the order of words cannot be ignored because we need to know which conditions are being negated. Furthermore, bag-of-words features cannot interpret the semantics of double negation. In other words, the baseline would look for the sentence that has nearly the identical number of the negation term, regardless of whether the cancellation occurs or not.
 
 This problem has overcome by the use of CCG, by tagging each word as functional feature and using inference rules to derive the semantic representation of natural language sentence. In regards to evaluation of our model, unfortunately we could not find any test corpus that is appropriate for our task. Instead, we have manually constructed the testing instances in the unit test environment. The each test instance passes the test if the output of the generated code matches the expected output. We have covered 10 testing instances with 4 different programming languages, such as Python, Kotlin, Java, and Elm. All 40 testing instances have passed. Figure 2 shows the examples of code output. 
 
+\begin{figure}[t!]
+  \small
+  \begin{verbatim}
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+class Code {
+  public static List<Integer> code() {
+    return IntStream.rangeClosed(0, 100)
+     .filter(x -> x % 2 == 0)
+     .filter(x -> x > 5)
+     .boxed().collect(Collectors.toList());
+  }
+}
+  \end{verbatim}
+  \caption{Kotlin program equivalent to \lq create even list from 0 to 100 that is bigger than 5'}
+\end{figure}
 \section{Conclusion}
 
 From our results, we have shown that it is possible to create a program generator, whose complexity scales relatively linearly with the problem domain.
@@ -211,12 +219,16 @@ We have successfully shown that it is easy to extend upon the generator with min
 The project is currently limited in that we focused exclusively on numbered lists, with operations that operate on integers.
 An extension can be made to allow for differing types, and perhaps to also support more mutation oriented programming versus functional programming.
 
+\mbox{}
+\nocite{*}
+\bibliography{naaclhlt2016}
+\bibliographystyle{naaclhlt2016}
+
 \section{Statement of Contribution}
 Youngsun Jin has partially implemented CCG parser and baseline.
 
-
-\bibliography{naaclhlt2016}
-\bibliographystyle{naaclhlt2016}
+%\bibliography{naaclhlt2016}
+%\bibliographystyle{naaclhlt2016}
 
 \pagebreak
 ~
