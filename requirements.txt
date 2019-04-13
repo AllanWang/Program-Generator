@@ -1,6 +1,4 @@
-parameterized
-beeprint
-nltk
+beeprint==2.4.7
 Click==7.0
 dnspython==1.15.0
 eventlet==0.24.1
@@ -8,10 +6,14 @@ Flask==1.0.2
 Flask-SocketIO==3.0.2
 greenlet==0.4.15
 itsdangerous==1.1.0
-Jinja2==2.10
+Jinja2==2.10.1
 MarkupSafe==1.1.0
 monotonic==1.5
+nltk==3.4
+parameterized==0.7.0
 python-engineio==2.3.2
 python-socketio==2.0.0
+singledispatch==3.4.0.3
 six==1.11.0
+urwid==2.0.1
 Werkzeug==0.14.1
